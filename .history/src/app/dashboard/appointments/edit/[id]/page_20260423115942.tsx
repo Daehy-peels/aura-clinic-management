@@ -24,6 +24,7 @@ export default function EditAppointmentPage() {
     status: "scheduled",
   });
 
+  // 1. GENERATE TIME SLOTS
   const timeSlots = useMemo(() => {
     return Array.from({ length: 18 }, (_, i) => {
       const totalMinutes = 9 * 60 + i * 30;
@@ -45,6 +46,7 @@ export default function EditAppointmentPage() {
         setPatientName(
           `${data.patients?.first_name} ${data.patients?.last_name}`,
         );
+        // TRICK: Only take the first 16 chars to keep it "Naive" (YYYY-MM-DDTHH:mm)
         const naiveIso = data.scheduled_at.slice(0, 16);
         setSelectedDate(naiveIso.split("T")[0]);
         setFormData({
@@ -63,8 +65,8 @@ export default function EditAppointmentPage() {
   useEffect(() => {
     if (!selectedDate) return;
     async function fetchDaySchedule() {
-      const dayStart = `${selectedDate}T00:00:00`;
-      const dayEnd = `${selectedDate}T23:59:59`;
+      const dayStart = `${selectedDate}T00:00:00`; // Naive start
+      const dayEnd = `${selectedDate}T23:59:59`; // Naive end
       const { data } = await supabase
         .from("appointments")
         .select(`id, scheduled_at, duration, patients (first_name)`)
@@ -95,21 +97,32 @@ export default function EditAppointmentPage() {
     return slotTime >= startTime && slotTime < endTime;
   };
 
+  // CHECK FOR OVERLAPS
   const hasCollision = useMemo(() => {
     if (!formData.scheduled_at) return false;
     const startTime = parseISO(formData.scheduled_at + ":00");
     const endTime = addMinutes(startTime, formData.duration);
+
     return dayAppointments.some((apt) => {
       const otherStart = parseISO(apt.scheduled_at.slice(0, 19));
       const otherEnd = addMinutes(otherStart, apt.duration || 30);
+      // Logic: Does the selected range intersect with another appointment?
       return startTime < otherEnd && endTime > otherStart;
     });
   }, [formData.scheduled_at, formData.duration, dayAppointments]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (hasCollision) return;
+    if (hasCollision) {
+      alert(
+        "Conflict detected: This duration overlaps with another appointment.",
+      );
+      return;
+    }
+
+    // IMPORTANT: Save as "YYYY-MM-DDTHH:mm:ss" without offset to maintain wall-clock
     const finalDateString = `${formData.scheduled_at}:00`;
+
     const { error } = await supabase
       .from("appointments")
       .update({
@@ -120,6 +133,7 @@ export default function EditAppointmentPage() {
         scheduled_at: finalDateString,
       })
       .eq("id", id);
+
     if (!error) router.push("/dashboard/appointments");
   };
 
@@ -159,48 +173,27 @@ export default function EditAppointmentPage() {
           className="grid grid-cols-1 lg:grid-cols-12 gap-10"
         >
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm space-y-6">
               {/* Status Pill Toggle */}
-              <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 block">
-                  Session Status
-                </label>
-                <div className="grid grid-cols-3 gap-2 bg-slate-100/50 p-1.5 rounded-2xl">
-                  {["scheduled", "completed", "cancelled"].map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, status: s })}
-                      className={`py-2 text-[9px] font-black uppercase rounded-xl transition-all ${formData.status === s ? "bg-white text-rose-500 shadow-md" : "text-slate-400 hover:text-slate-600"}`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
+              <div className="grid grid-cols-3 gap-2 bg-slate-50 p-1 rounded-2xl">
+                {["scheduled", "completed", "cancelled"].map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, status: s })}
+                    className={`py-2 text-[8px] font-black uppercase rounded-xl transition-all ${formData.status === s ? "bg-white text-rose-500 shadow-sm" : "text-slate-400"}`}
+                  >
+                    {s}
+                  </button>
+                ))}
               </div>
 
-              {/* TREATMENT TYPE (RESTORED & VISIBLE) */}
               <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">
-                  Treatment Type
-                </label>
-                <input
-                  className="w-full p-4 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 font-medium focus:ring-2 focus:ring-rose-200 outline-none transition-all placeholder:text-slate-300"
-                  value={formData.treatment_type}
-                  placeholder="e.g. Aura Signature Facial"
-                  onChange={(e) =>
-                    setFormData({ ...formData, treatment_type: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* DURATION (FIXED DULLNESS) */}
-              <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">
-                  Duration (Minutes)
+                <label className="text-[10px] font-black text-slate-400 uppercase mb-2 block">
+                  Duration
                 </label>
                 <select
-                  className="w-full p-4 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 font-bold focus:ring-2 focus:ring-rose-200 outline-none appearance-none cursor-pointer"
+                  className="w-full p-4 rounded-2xl bg-slate-50 border-none"
                   value={formData.duration}
                   onChange={(e) =>
                     setFormData({
@@ -214,39 +207,35 @@ export default function EditAppointmentPage() {
                   <option value={90}>90 Mins</option>
                   <option value={120}>120 Mins</option>
                 </select>
-                <p className="text-[8px] text-slate-400 mt-2 ml-1 italic">
-                  *Blocks will update on the timeline
-                </p>
               </div>
 
-              {/* CLINICAL NOTES (FIXED DULLNESS) */}
               <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">
+                <label className="text-[10px] font-black text-slate-400 uppercase mb-2 block">
                   Clinical Notes
                 </label>
                 <textarea
-                  rows={5}
-                  className="w-full p-6 rounded-[2rem] bg-slate-50 border border-slate-100 text-slate-900 font-serif italic text-sm focus:ring-2 focus:ring-rose-200 outline-none transition-all placeholder:text-slate-300"
+                  rows={4}
+                  className="w-full p-4 rounded-2xl bg-slate-50 border-none font-serif italic"
                   value={formData.notes}
                   onChange={(e) =>
                     setFormData({ ...formData, notes: e.target.value })
                   }
-                  placeholder="Enter medical or aesthetic notes here..."
+                  placeholder="Notes..."
                 />
               </div>
             </div>
 
             <button
               disabled={hasCollision}
-              className={`w-full py-6 rounded-full font-black uppercase tracking-[0.3em] text-[11px] transition-all ${hasCollision ? "bg-slate-100 text-slate-300 cursor-not-allowed" : "bg-slate-900 text-white hover:bg-rose-500 shadow-2xl hover:-translate-y-1"}`}
+              className={`w-full py-6 rounded-full font-black uppercase tracking-widest transition-all ${hasCollision ? "bg-slate-100 text-slate-300 cursor-not-allowed" : "bg-slate-900 text-white hover:bg-rose-500 shadow-xl"}`}
             >
               {hasCollision ? "Schedule Conflict" : "Confirm Amendments"}
             </button>
           </div>
 
-          <div className="lg:col-span-8 bg-white p-12 rounded-[4rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
+          <div className="lg:col-span-8 bg-white p-10 rounded-[4rem] border border-slate-100 shadow-sm">
             <div className="flex justify-between items-center mb-10">
-              <h3 className="text-3xl font-light text-slate-800">
+              <h3 className="text-2xl font-light">
                 Clinic{" "}
                 <span className="italic font-serif text-rose-500">
                   Timeline
@@ -254,19 +243,19 @@ export default function EditAppointmentPage() {
               </h3>
               <input
                 type="date"
-                className="bg-rose-50/50 text-rose-500 text-[10px] font-black p-3 px-6 rounded-full border-none ring-1 ring-rose-100"
+                className="bg-rose-50 text-rose-500 text-[10px] font-black p-3 px-6 rounded-full border-none"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
               />
             </div>
 
             {hasCollision && (
-              <div className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-[9px] font-black uppercase tracking-[0.2em] text-center animate-pulse">
-                ⚠️ Selection Overlaps with an existing patient
+              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center animate-bounce">
+                ⚠️ Warning: Selection Overlaps with an existing appointment
               </div>
             )}
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {timeSlots.map((time) => {
                 const occupant = getOccupant(time);
                 const isSelected = isSlotSelected(time);
@@ -283,21 +272,21 @@ export default function EditAppointmentPage() {
                         scheduled_at: `${selectedDate}T${time}`,
                       })
                     }
-                    className={`relative p-8 rounded-[2.5rem] text-[12px] font-black transition-all flex flex-col items-center justify-center border-2 
+                    className={`relative p-8 rounded-[2.5rem] text-[11px] font-black transition-all flex flex-col items-center justify-center border-2 
                       ${
                         isCollisionSlot
-                          ? "bg-red-500 text-white border-red-500 shadow-lg scale-95"
+                          ? "bg-red-500 text-white border-red-500 shadow-red-200"
                           : isSelected
-                            ? "bg-rose-500 text-white border-rose-500 shadow-xl shadow-rose-100 z-10 scale-105"
+                            ? "bg-rose-500 text-white border-rose-500 shadow-rose-200"
                             : occupant
-                              ? "bg-slate-50 text-slate-300 border-slate-50 opacity-60"
-                              : "bg-white text-slate-400 border-slate-50 hover:border-rose-100 hover:text-rose-500 hover:bg-rose-50/30"
+                              ? "bg-slate-50 text-slate-300 border-slate-50"
+                              : "bg-white text-slate-400 border-slate-50 hover:border-rose-100 hover:text-rose-400"
                       }
                     `}
                   >
-                    <span className="tracking-widest">{time}</span>
+                    <span>{time}</span>
                     {occupant && (
-                      <span className="absolute bottom-4 text-[7px] uppercase tracking-tighter font-black">
+                      <span className="absolute bottom-4 text-[7px] uppercase opacity-60">
                         {occupant}
                       </span>
                     )}
