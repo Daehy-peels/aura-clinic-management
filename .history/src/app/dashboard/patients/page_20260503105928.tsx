@@ -106,10 +106,10 @@ export default function PatientsPage() {
               placeholder="Search by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-16 pl-14 pr-6 bg-white border-2 border-slate-100 rounded-3xl focus:border-rose-200 focus:ring-4 focus:ring-rose-50/50 outline-none transition-all text-sm text-slate-700 font-medium shadow-sm placeholder:text-slate-400"
+              className="w-full h-16 pl-14 pr-6 bg-white border-2 border-slate-50 rounded-3xl focus:border-rose-100 outline-none transition-all text-sm shadow-sm placeholder:text-slate-300"
             />
             <svg
-              className="h-5 w-5 absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors"
+              className="h-5 w-5 absolute left-6 top-1/2 -translate-y-1/2 text-rose-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -117,7 +117,7 @@ export default function PatientsPage() {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2.5}
+                strokeWidth={2}
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>

@@ -89,10 +89,9 @@ export default function DashboardLayout({
       {/* --- MAIN CONTENT --- */}
       <main className="flex-1 overflow-y-auto pb-24 md:pb-0">{children}</main>
 
-      {/* --- MOBILE BOTTOM NAVIGATION (Floating Capsule) --- */}
-      <nav className="md:hidden fixed bottom-6 left-4 right-4 z-[100] animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <div className="mx-auto max-w-lg bg-white/60 backdrop-blur-2xl border border-white/40 rounded-[2.5rem] shadow-[0_20px_40px_rgba(0,0,0,0.08)] px-2 h-20 flex items-center justify-around relative">
-          {/* Active Indicator Background (Optional: adds a sliding pill effect) */}
+      {/* --- MOBILE BOTTOM NAVIGATION --- */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-rose-100 px-6 pt-3 pb-safe-area-inset-bottom z-[100] shadow-[0_-10px_30px_rgba(255,192,203,0.1)]">
+        <div className="flex justify-between items-center max-w-md mx-auto h-16">
           <MobileNavLink
             href="/dashboard"
             active={isActive("/dashboard")}
@@ -111,11 +110,11 @@ export default function DashboardLayout({
             icon={<CalendarIcon />}
             label="Schedule"
           />
-          <div className="w-[1px] h-8 bg-rose-200/30 mx-1" />{" "}
-          {/* Subtle Divider */}
+
+          {/* Simple logout trigger for mobile as well */}
           <button
             onClick={handleLogout}
-            className="flex flex-col items-center justify-center gap-1 px-4 text-slate-400 active:scale-95 transition-transform"
+            className="flex flex-col items-center gap-1 px-4 text-gray-400"
           >
             <LogoutIcon className="h-5 w-5" />
             <span className="text-[8px] font-black uppercase tracking-widest">
@@ -174,21 +173,15 @@ function MobileNavLink({
   return (
     <Link
       href={href}
-      className={`relative flex flex-col items-center justify-center w-20 h-full transition-all duration-500 ${active ? "text-rose-500" : "text-slate-400"}`}
+      className="flex flex-col items-center gap-1 px-4 transition-all duration-300"
     >
-      {/* Indicating Dot */}
-      {active && (
-        <div className="absolute top-2 w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
-      )}
-
       <div
-        className={`transition-transform duration-300 ${active ? "-translate-y-1 scale-110" : "group-active:scale-90"}`}
+        className={`p-2 rounded-xl transition-all ${active ? "bg-rose-500 text-white shadow-lg shadow-rose-200 scale-110 -translate-y-1" : "text-rose-300"}`}
       >
         {icon}
       </div>
-
       <span
-        className={`text-[8px] font-black uppercase tracking-widest mt-1 transition-opacity ${active ? "opacity-100" : "opacity-60"}`}
+        className={`text-[8px] font-black uppercase tracking-widest ${active ? "text-rose-600" : "text-gray-400"}`}
       >
         {label}
       </span>

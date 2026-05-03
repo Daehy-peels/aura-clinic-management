@@ -287,29 +287,6 @@ function EmptyState() {
   );
 }
 
-// UI HELPER COMPONENTS
-function InfoItem({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start gap-4">
-      <div className="mt-1 text-rose-300">{icon}</div>
-      <div>
-        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">
-          {label}
-        </label>
-        <p className="text-sm text-slate-700 font-medium">{value}</p>
-      </div>
-    </div>
-  );
-}
-
 // ICONS (Inline for simplicity)
 const IconEmail = () => (
   <svg

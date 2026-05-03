@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { addMinutes, parseISO } from "date-fns";
+import { format, addMinutes, parseISO } from "date-fns";
 
 export default function EditAppointmentPage() {
   const { id } = useParams();
@@ -125,47 +125,42 @@ export default function EditAppointmentPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center font-serif italic text-rose-500 bg-[#FFFDFD]">
+      <div className="p-20 text-center font-serif italic text-rose-500">
         Syncing Records...
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-[#FFFDFD] p-4 md:p-12">
+    <div className="min-h-screen bg-[#FFFDFD] p-6 md:p-12">
       <div className="max-w-7xl mx-auto">
-        {/* RESPONSIVE HEADER */}
-        <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
             <Link
               href="/dashboard/appointments"
-              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-rose-500 transition-colors"
+              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-rose-500"
             >
               ← Back
             </Link>
-            <h1 className="text-4xl md:text-6xl font-light tracking-tighter mt-2">
+            <h1 className="text-6xl font-light tracking-tighter mt-2">
               Edit{" "}
               <span className="font-serif italic text-rose-500">Session</span>
             </h1>
           </div>
-
-          <div className="w-full md:w-auto bg-white border border-slate-100 p-5 md:p-6 md:px-10 rounded-2xl md:rounded-[2rem] shadow-sm">
+          <div className="bg-white border border-slate-100 p-6 px-10 rounded-[2rem] shadow-sm">
             <p className="text-[9px] font-black text-rose-300 uppercase mb-1">
               Patient
             </p>
-            <p className="text-lg md:text-xl font-bold text-slate-700">
-              {patientName}
-            </p>
+            <p className="text-xl font-bold text-slate-700">{patientName}</p>
           </div>
         </header>
 
         <form
           onSubmit={handleUpdate}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-10"
         >
-          {/* LEFT COLUMN: SETTINGS */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-sm space-y-6 md:space-y-8">
-              {/* Status Toggle */}
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm space-y-8">
+              {/* Status Pill Toggle */}
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 block">
                   Session Status
@@ -176,11 +171,7 @@ export default function EditAppointmentPage() {
                       key={s}
                       type="button"
                       onClick={() => setFormData({ ...formData, status: s })}
-                      className={`py-2 text-[8px] md:text-[9px] font-black uppercase rounded-xl transition-all ${
-                        formData.status === s
-                          ? "bg-white text-rose-500 shadow-md"
-                          : "text-slate-400 hover:text-slate-600"
-                      }`}
+                      className={`py-2 text-[9px] font-black uppercase rounded-xl transition-all ${formData.status === s ? "bg-white text-rose-500 shadow-md" : "text-slate-400 hover:text-slate-600"}`}
                     >
                       {s}
                     </button>
@@ -188,13 +179,13 @@ export default function EditAppointmentPage() {
                 </div>
               </div>
 
-              {/* Treatment Type */}
+              {/* TREATMENT TYPE (RESTORED & VISIBLE) */}
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">
                   Treatment Type
                 </label>
                 <input
-                  className="w-full p-4 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 font-medium focus:ring-2 focus:ring-rose-200 outline-none transition-all placeholder:text-slate-300 text-sm"
+                  className="w-full p-4 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 font-medium focus:ring-2 focus:ring-rose-200 outline-none transition-all placeholder:text-slate-300"
                   value={formData.treatment_type}
                   placeholder="e.g. Aura Signature Facial"
                   onChange={(e) =>
@@ -203,13 +194,13 @@ export default function EditAppointmentPage() {
                 />
               </div>
 
-              {/* Duration */}
+              {/* DURATION (FIXED DULLNESS) */}
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">
                   Duration (Minutes)
                 </label>
                 <select
-                  className="w-full p-4 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 font-bold focus:ring-2 focus:ring-rose-200 outline-none appearance-none cursor-pointer text-sm"
+                  className="w-full p-4 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 font-bold focus:ring-2 focus:ring-rose-200 outline-none appearance-none cursor-pointer"
                   value={formData.duration}
                   onChange={(e) =>
                     setFormData({
@@ -223,41 +214,39 @@ export default function EditAppointmentPage() {
                   <option value={90}>90 Mins</option>
                   <option value={120}>120 Mins</option>
                 </select>
+                <p className="text-[8px] text-slate-400 mt-2 ml-1 italic">
+                  *Blocks will update on the timeline
+                </p>
               </div>
 
-              {/* Clinical Notes */}
+              {/* CLINICAL NOTES (FIXED DULLNESS) */}
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">
                   Clinical Notes
                 </label>
                 <textarea
-                  rows={4}
-                  className="w-full p-5 rounded-2xl md:rounded-[2rem] bg-slate-50 border border-slate-100 text-slate-900 font-serif italic text-sm focus:ring-2 focus:ring-rose-200 outline-none transition-all placeholder:text-slate-300"
+                  rows={5}
+                  className="w-full p-6 rounded-[2rem] bg-slate-50 border border-slate-100 text-slate-900 font-serif italic text-sm focus:ring-2 focus:ring-rose-200 outline-none transition-all placeholder:text-slate-300"
                   value={formData.notes}
                   onChange={(e) =>
                     setFormData({ ...formData, notes: e.target.value })
                   }
-                  placeholder="Enter medical notes..."
+                  placeholder="Enter medical or aesthetic notes here..."
                 />
               </div>
             </div>
 
             <button
               disabled={hasCollision}
-              className={`w-full py-5 md:py-6 rounded-full font-black uppercase tracking-[0.3em] text-[10px] md:text-[11px] transition-all ${
-                hasCollision
-                  ? "bg-slate-100 text-slate-300 cursor-not-allowed"
-                  : "bg-slate-900 text-white hover:bg-rose-500 shadow-2xl hover:-translate-y-1"
-              }`}
+              className={`w-full py-6 rounded-full font-black uppercase tracking-[0.3em] text-[11px] transition-all ${hasCollision ? "bg-slate-100 text-slate-300 cursor-not-allowed" : "bg-slate-900 text-white hover:bg-rose-500 shadow-2xl hover:-translate-y-1"}`}
             >
               {hasCollision ? "Schedule Conflict" : "Confirm Amendments"}
             </button>
           </div>
 
-          {/* RIGHT COLUMN: TIMELINE */}
-          <div className="lg:col-span-8 bg-white p-6 md:p-12 rounded-[2.5rem] md:rounded-[4rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 md:mb-10">
-              <h3 className="text-2xl md:text-3xl font-light text-slate-800">
+          <div className="lg:col-span-8 bg-white p-12 rounded-[4rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
+            <div className="flex justify-between items-center mb-10">
+              <h3 className="text-3xl font-light text-slate-800">
                 Clinic{" "}
                 <span className="italic font-serif text-rose-500">
                   Timeline
@@ -265,19 +254,19 @@ export default function EditAppointmentPage() {
               </h3>
               <input
                 type="date"
-                className="w-full sm:w-auto bg-rose-50/50 text-rose-500 text-[10px] font-black p-3 px-6 rounded-full border-none ring-1 ring-rose-100 outline-none"
+                className="bg-rose-50/50 text-rose-500 text-[10px] font-black p-3 px-6 rounded-full border-none ring-1 ring-rose-100"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
               />
             </div>
 
             {hasCollision && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-[9px] font-black uppercase tracking-[0.2em] text-center animate-pulse">
+              <div className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-[9px] font-black uppercase tracking-[0.2em] text-center animate-pulse">
                 ⚠️ Selection Overlaps with an existing patient
               </div>
             )}
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
               {timeSlots.map((time) => {
                 const occupant = getOccupant(time);
                 const isSelected = isSlotSelected(time);
@@ -294,12 +283,12 @@ export default function EditAppointmentPage() {
                         scheduled_at: `${selectedDate}T${time}`,
                       })
                     }
-                    className={`relative p-5 md:p-8 rounded-2xl md:rounded-[2.5rem] text-[11px] md:text-[12px] font-black transition-all flex flex-col items-center justify-center border-2 
+                    className={`relative p-8 rounded-[2.5rem] text-[12px] font-black transition-all flex flex-col items-center justify-center border-2 
                       ${
                         isCollisionSlot
                           ? "bg-red-500 text-white border-red-500 shadow-lg scale-95"
                           : isSelected
-                            ? "bg-rose-500 text-white border-rose-500 shadow-xl z-10 scale-105"
+                            ? "bg-rose-500 text-white border-rose-500 shadow-xl shadow-rose-100 z-10 scale-105"
                             : occupant
                               ? "bg-slate-50 text-slate-300 border-slate-50 opacity-60"
                               : "bg-white text-slate-400 border-slate-50 hover:border-rose-100 hover:text-rose-500 hover:bg-rose-50/30"
@@ -308,7 +297,7 @@ export default function EditAppointmentPage() {
                   >
                     <span className="tracking-widest">{time}</span>
                     {occupant && (
-                      <span className="absolute bottom-2 md:bottom-4 text-[6px] md:text-[7px] uppercase tracking-tighter font-black truncate max-w-[80%]">
+                      <span className="absolute bottom-4 text-[7px] uppercase tracking-tighter font-black">
                         {occupant}
                       </span>
                     )}

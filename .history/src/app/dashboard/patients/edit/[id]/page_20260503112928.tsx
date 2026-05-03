@@ -72,6 +72,7 @@ export default function EditPatientPage() {
   return (
     <div className="min-h-screen bg-[#FFFDFD] p-4 md:p-12 text-slate-800">
       <div className="max-w-4xl mx-auto">
+        
         {/* HEADER SECTION - Now stacks on mobile */}
         <div className="mb-8 md:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="animate-in fade-in slide-in-from-left duration-700">
@@ -91,7 +92,7 @@ export default function EditPatientPage() {
               </span>
             </h1>
           </div>
-
+          
           <div className="flex flex-row md:flex-col justify-between items-center md:items-end border-t md:border-t-0 border-slate-100 pt-4 md:pt-0">
             <div>
               <p className="text-[8px] md:text-[9px] font-black text-rose-300 uppercase tracking-widest">
@@ -105,6 +106,7 @@ export default function EditPatientPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 md:space-y-10">
+          
           {/* PERSONAL INFORMATION CARD */}
           <div className="bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-14 border border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.02)] relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 md:w-40 md:h-40 bg-rose-50/50 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-rose-100/50 transition-colors duration-700" />

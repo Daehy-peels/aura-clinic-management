@@ -85,9 +85,7 @@ export default function BookAppointmentPage() {
     while (current <= end) {
       const timeStr = format(current, "HH:mm");
       const occupant = dayAppointments.find((apt) => {
-        const dbStart = new Date(
-          apt.scheduled_at.replace("Z", "").split("+")[0],
-        );
+        const dbStart = new Date(apt.scheduled_at.replace("Z", "").split("+")[0]);
         const dbEnd = new Date(apt.ended_at.replace("Z", "").split("+")[0]);
         const slotStart = current;
         const slotEnd = addMinutes(current, 30);
@@ -148,6 +146,7 @@ export default function BookAppointmentPage() {
   return (
     <div className="min-h-screen bg-[#FFF5F5] p-4 sm:p-6 md:p-12 text-gray-800">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        
         {/* LEFT: FORM SIDE */}
         <div className="lg:col-span-5 space-y-6 md:space-y-8">
           <div>
@@ -269,9 +268,7 @@ export default function BookAppointmentPage() {
                   <p className="text-[9px] font-black uppercase tracking-widest text-red-600">
                     Conflict Detected
                   </p>
-                  <p className="text-xs text-red-500 font-medium">
-                    {slotError}
-                  </p>
+                  <p className="text-xs text-red-500 font-medium">{slotError}</p>
                 </div>
               </div>
             )}
@@ -288,8 +285,8 @@ export default function BookAppointmentPage() {
               {loading
                 ? "Processing..."
                 : slotError
-                  ? "Slot Unavailable"
-                  : "Confirm Appointment"}
+                ? "Slot Unavailable"
+                : "Confirm Appointment"}
             </button>
           </form>
         </div>
@@ -300,9 +297,7 @@ export default function BookAppointmentPage() {
             <div className="mb-6 md:mb-8 text-center sm:text-left">
               <h2 className="text-2xl font-light tracking-tight">
                 Daily{" "}
-                <span className="italic font-serif text-rose-500">
-                  Timeline
-                </span>
+                <span className="italic font-serif text-rose-500">Timeline</span>
               </h2>
               <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">
                 {format(new Date(selectedDate), "EEEE, MMMM do")}
@@ -312,8 +307,7 @@ export default function BookAppointmentPage() {
             <div className="grid grid-cols-1 gap-3 overflow-y-auto max-h-[500px] md:max-h-[600px] pr-2 md:pr-4 custom-scrollbar">
               {timeSlots.map((slot, i) => {
                 const isOccupied = !!slot.occupant;
-                const patientName =
-                  slot.occupant?.patients?.first_name || "Patient";
+                const patientName = slot.occupant?.patients?.first_name || "Patient";
                 const treatment = slot.occupant?.treatment_type || "Session";
 
                 return (
@@ -363,32 +357,12 @@ export default function BookAppointmentPage() {
                       }`}
                     >
                       {isOccupied ? (
-                        <svg
-                          className="h-3 w-3 sm:h-4 sm:w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={3}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
+                        <svg className="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       ) : (
-                        <svg
-                          className="h-3 w-3 sm:h-4 sm:w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={3}
-                            d="M5 13l4 4L19 7"
-                          />
+                        <svg className="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                         </svg>
                       )}
                     </div>

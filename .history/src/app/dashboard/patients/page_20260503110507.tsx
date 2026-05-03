@@ -99,29 +99,28 @@ export default function PatientsPage() {
         </div>
 
         {/* SEARCH & QUICK STATS - Dynamic Grid */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-16 pl-14 pr-6 bg-white border-2 border-slate-100 rounded-3xl focus:border-rose-200 focus:ring-4 focus:ring-rose-50/50 outline-none transition-all text-sm text-slate-700 font-medium shadow-sm placeholder:text-slate-400"
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full h-16 pl-14 pr-6 bg-white border-2 border-slate-100 rounded-3xl focus:border-rose-200 focus:ring-4 focus:ring-rose-50/50 outline-none transition-all text-sm text-slate-700 font-medium shadow-sm placeholder:text-slate-400"
+          />
+          <svg 
+            className="h-5 w-5 absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2.5} 
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
             />
-            <svg
-              className="h-5 w-5 absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-400 transition-colors"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
+          </svg>
+        </div>
 
           <div className="flex gap-4">
             <div className="flex-1 lg:w-40 bg-emerald-50/50 p-4 rounded-3xl border border-emerald-100 text-center">

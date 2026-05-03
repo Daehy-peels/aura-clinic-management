@@ -15,16 +15,14 @@ export default function AppointmentsPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("appointments")
-      .select(
-        `
+      .select(`
         id,
         scheduled_at,
         treatment_type,
         status,
         notes,
         patients (first_name, last_name)
-      `,
-      )
+      `)
       .order("scheduled_at", { ascending: true });
 
     if (!error) setAppointments(data || []);
@@ -64,6 +62,7 @@ export default function AppointmentsPage() {
   return (
     <div className="min-h-screen bg-[#FFFDFD] p-4 md:p-12 text-slate-800 pb-32">
       <div className="max-w-6xl mx-auto">
+        
         {/* HEADER SECTION - Fluid Typography */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-8 md:mb-12 gap-6 md:gap-8">
           <div className="space-y-2 md:space-y-4 animate-in fade-in slide-in-from-left duration-700">
@@ -87,18 +86,8 @@ export default function AppointmentsPage() {
               Request Session
             </span>
             <div className="w-5 h-5 md:w-6 md:h-6 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform">
-              <svg
-                className="w-2.5 h-2.5 md:w-3 md:h-3"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={4}
-                  d="M12 4v16m8-8H4"
-                />
+              <svg className="w-2.5 h-2.5 md:w-3 md:h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M12 4v16m8-8H4" />
               </svg>
             </div>
           </Link>
@@ -186,7 +175,7 @@ function AppointmentCard({ apt, onStatusUpdate, onDelete }: any) {
             </span>
           </div>
         </div>
-
+        
         <span
           className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full md:mt-4 ${isComp ? "bg-emerald-100 text-emerald-600" : "bg-rose-50 text-rose-500"}`}
         >
@@ -219,23 +208,11 @@ function AppointmentCard({ apt, onStatusUpdate, onDelete }: any) {
       {/* ACTION CLUSTER - Always visible on mobile, Hover on desktop */}
       <div className="flex items-center gap-2 md:gap-3 bg-slate-900 p-2 rounded-[2rem] shadow-xl md:opacity-0 md:group-hover:opacity-100 transition-all transform md:translate-y-4 md:group-hover:translate-y-0">
         <button
-          onClick={() =>
-            onStatusUpdate(apt.id, isComp ? "scheduled" : "completed")
-          }
+          onClick={() => onStatusUpdate(apt.id, isComp ? "scheduled" : "completed")}
           className={`p-3 md:p-4 rounded-full transition-all ${isComp ? "bg-emerald-500 text-white" : "text-slate-400 hover:text-white"}`}
         >
-          <svg
-            className="w-4 h-4 md:w-5 md:h-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={3}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
+          <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </button>
 
@@ -243,11 +220,7 @@ function AppointmentCard({ apt, onStatusUpdate, onDelete }: any) {
           href={`/dashboard/appointments/edit/${apt.id}`}
           className="p-3 md:p-4 text-slate-400 hover:text-rose-400 transition-all"
         >
-          <svg
-            className="w-4 h-4 md:w-5 md:h-5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
+          <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
           </svg>
         </Link>
@@ -256,18 +229,8 @@ function AppointmentCard({ apt, onStatusUpdate, onDelete }: any) {
           onClick={() => onDelete(apt.id)}
           className="p-3 md:p-4 text-slate-400 hover:text-red-500 transition-all"
         >
-          <svg
-            className="w-4 h-4 md:w-5 md:h-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
+          <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </button>
       </div>

@@ -42,9 +42,7 @@ export default function EditAppointmentPage() {
         .single();
 
       if (data) {
-        setPatientName(
-          `${data.patients?.first_name} ${data.patients?.last_name}`,
-        );
+        setPatientName(`${data.patients?.first_name} ${data.patients?.last_name}`);
         const naiveIso = data.scheduled_at.slice(0, 16);
         setSelectedDate(naiveIso.split("T")[0]);
         setFormData({
@@ -133,6 +131,7 @@ export default function EditAppointmentPage() {
   return (
     <div className="min-h-screen bg-[#FFFDFD] p-4 md:p-12">
       <div className="max-w-7xl mx-auto">
+        
         {/* RESPONSIVE HEADER */}
         <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
@@ -147,14 +146,12 @@ export default function EditAppointmentPage() {
               <span className="font-serif italic text-rose-500">Session</span>
             </h1>
           </div>
-
+          
           <div className="w-full md:w-auto bg-white border border-slate-100 p-5 md:p-6 md:px-10 rounded-2xl md:rounded-[2rem] shadow-sm">
             <p className="text-[9px] font-black text-rose-300 uppercase mb-1">
               Patient
             </p>
-            <p className="text-lg md:text-xl font-bold text-slate-700">
-              {patientName}
-            </p>
+            <p className="text-lg md:text-xl font-bold text-slate-700">{patientName}</p>
           </div>
         </header>
 
@@ -165,6 +162,7 @@ export default function EditAppointmentPage() {
           {/* LEFT COLUMN: SETTINGS */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-sm space-y-6 md:space-y-8">
+              
               {/* Status Toggle */}
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 block">
@@ -177,9 +175,9 @@ export default function EditAppointmentPage() {
                       type="button"
                       onClick={() => setFormData({ ...formData, status: s })}
                       className={`py-2 text-[8px] md:text-[9px] font-black uppercase rounded-xl transition-all ${
-                        formData.status === s
-                          ? "bg-white text-rose-500 shadow-md"
-                          : "text-slate-400 hover:text-slate-600"
+                        formData.status === s 
+                        ? "bg-white text-rose-500 shadow-md" 
+                        : "text-slate-400 hover:text-slate-600"
                       }`}
                     >
                       {s}
@@ -245,9 +243,9 @@ export default function EditAppointmentPage() {
             <button
               disabled={hasCollision}
               className={`w-full py-5 md:py-6 rounded-full font-black uppercase tracking-[0.3em] text-[10px] md:text-[11px] transition-all ${
-                hasCollision
-                  ? "bg-slate-100 text-slate-300 cursor-not-allowed"
-                  : "bg-slate-900 text-white hover:bg-rose-500 shadow-2xl hover:-translate-y-1"
+                hasCollision 
+                ? "bg-slate-100 text-slate-300 cursor-not-allowed" 
+                : "bg-slate-900 text-white hover:bg-rose-500 shadow-2xl hover:-translate-y-1"
               }`}
             >
               {hasCollision ? "Schedule Conflict" : "Confirm Amendments"}
@@ -259,9 +257,7 @@ export default function EditAppointmentPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 md:mb-10">
               <h3 className="text-2xl md:text-3xl font-light text-slate-800">
                 Clinic{" "}
-                <span className="italic font-serif text-rose-500">
-                  Timeline
-                </span>
+                <span className="italic font-serif text-rose-500">Timeline</span>
               </h3>
               <input
                 type="date"

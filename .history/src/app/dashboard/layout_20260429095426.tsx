@@ -174,21 +174,15 @@ function MobileNavLink({
   return (
     <Link
       href={href}
-      className={`relative flex flex-col items-center justify-center w-20 h-full transition-all duration-500 ${active ? "text-rose-500" : "text-slate-400"}`}
+      className="flex flex-col items-center gap-1 px-4 transition-all duration-300"
     >
-      {/* Indicating Dot */}
-      {active && (
-        <div className="absolute top-2 w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
-      )}
-
       <div
-        className={`transition-transform duration-300 ${active ? "-translate-y-1 scale-110" : "group-active:scale-90"}`}
+        className={`p-2 rounded-xl transition-all ${active ? "bg-rose-500 text-white shadow-lg shadow-rose-200 scale-110 -translate-y-1" : "text-rose-300"}`}
       >
         {icon}
       </div>
-
       <span
-        className={`text-[8px] font-black uppercase tracking-widest mt-1 transition-opacity ${active ? "opacity-100" : "opacity-60"}`}
+        className={`text-[8px] font-black uppercase tracking-widest ${active ? "text-rose-600" : "text-gray-400"}`}
       >
         {label}
       </span>

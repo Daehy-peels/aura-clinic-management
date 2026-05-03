@@ -42,9 +42,7 @@ export default function DashboardPage() {
           .lte("scheduled_at", `${todayDate}T23:59:59`),
         supabase
           .from("appointments")
-          .select(
-            `id, treatment_type, scheduled_at, patients (first_name, last_name)`,
-          )
+          .select(`id, treatment_type, scheduled_at, patients (first_name, last_name)`)
           // Fetch from "now" onwards (Naive comparison)
           .gte("scheduled_at", new Date().toISOString().slice(0, 16))
           .order("scheduled_at", { ascending: true })
@@ -117,26 +115,10 @@ export default function DashboardPage() {
 
         {/* STATS GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 mb-12 md:mb-20">
-          <StatCard
-            title="Total Registry"
-            value={stats.patients}
-            subtitle="Active Patient Files"
-            icon={<IconFolder />}
-          />
-          <StatCard
-            title="Today's Flow"
-            value={stats.todayAppointments}
-            subtitle="Sessions Booked"
-            icon={<IconSparkle />}
-            color="text-rose-500"
-          />
+          <StatCard title="Total Registry" value={stats.patients} subtitle="Active Patient Files" icon={<IconFolder />} />
+          <StatCard title="Today's Flow" value={stats.todayAppointments} subtitle="Sessions Booked" icon={<IconSparkle />} color="text-rose-500" />
           <div className="sm:col-span-2 lg:col-span-1">
-            <StatCard
-              title="Weekly Growth"
-              value={`+${stats.weeklyGrowth}`}
-              subtitle="New Registrations"
-              icon={<IconChart />}
-            />
+             <StatCard title="Weekly Growth" value={`+${stats.weeklyGrowth}`} subtitle="New Registrations" icon={<IconChart />} />
           </div>
         </div>
 
@@ -148,52 +130,32 @@ export default function DashboardPage() {
               <h2 className="text-[10px] md:text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">
                 Next In Treatment
               </h2>
-              <Link
-                href="/dashboard/appointments"
-                className="text-[10px] font-black text-rose-500 hover:text-rose-700 transition-colors uppercase tracking-widest border-b border-rose-200 pb-1"
-              >
+              <Link href="/dashboard/appointments" className="text-[10px] font-black text-rose-500 hover:text-rose-700 transition-colors uppercase tracking-widest border-b border-rose-200 pb-1">
                 View All
               </Link>
             </div>
 
             <div className="bg-white border border-slate-100 rounded-[2.5rem] md:rounded-[4rem] p-2 md:p-4 shadow-sm">
               {loading ? (
-                <div className="p-20 text-center animate-pulse text-rose-300 font-serif italic">
-                  Accessing schedule...
-                </div>
+                <div className="p-20 text-center animate-pulse text-rose-300 font-serif italic">Accessing schedule...</div>
               ) : upcoming.length > 0 ? (
                 <div className="divide-y divide-slate-50">
                   {upcoming.map((apt) => (
-                    <div
-                      key={apt.id}
-                      className="group flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 md:p-10 hover:bg-rose-50/30 rounded-[2rem] md:rounded-[3rem] transition-all duration-500"
-                    >
+                    <div key={apt.id} className="group flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 md:p-10 hover:bg-rose-50/30 rounded-[2rem] md:rounded-[3rem] transition-all duration-500">
                       <div className="flex items-center gap-6 md:gap-12 w-full sm:w-auto">
                         <div className="text-center min-w-[70px]">
                           <p className="text-[9px] font-black text-rose-300 uppercase tracking-widest mb-1">
-                            {format(
-                              parseISO(apt.scheduled_at.slice(0, 16)),
-                              "MMM dd",
-                            )}
+                             {format(parseISO(apt.scheduled_at.slice(0, 16)), "MMM dd")}
                           </p>
                           <p className="text-xl md:text-2xl font-light text-slate-900 tracking-tighter">
-                            {format(
-                              parseISO(apt.scheduled_at.slice(0, 16)),
-                              "HH:mm",
-                            )}
+                            {format(parseISO(apt.scheduled_at.slice(0, 16)), "HH:mm")}
                           </p>
                         </div>
                         <div className="hidden sm:block h-10 w-[1px] bg-slate-100 group-hover:bg-rose-200 transition-colors" />
                         <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                            Patient
-                          </p>
-                          <p className="text-lg font-bold text-slate-900">
-                            {apt.patients?.first_name} {apt.patients?.last_name}
-                          </p>
-                          <p className="text-sm md:text-lg font-serif italic text-rose-500">
-                            {apt.treatment_type}
-                          </p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Patient</p>
+                          <p className="text-lg font-bold text-slate-900">{apt.patients?.first_name} {apt.patients?.last_name}</p>
+                          <p className="text-sm md:text-lg font-serif italic text-rose-500">{apt.treatment_type}</p>
                         </div>
                       </div>
                       <div className="mt-4 sm:mt-0 ml-auto sm:ml-0 flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-full bg-slate-50 group-hover:bg-rose-500 group-hover:text-white transition-all">
@@ -203,9 +165,7 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <div className="p-20 text-center text-slate-400 italic font-serif">
-                  The afternoon is clear.
-                </div>
+                <div className="p-20 text-center text-slate-400 italic font-serif">The afternoon is clear.</div>
               )}
             </div>
           </div>
@@ -214,28 +174,17 @@ export default function DashboardPage() {
           <div className="lg:col-span-4 space-y-6 md:space-y-10">
             <div className="bg-slate-900 rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 text-white shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/20 rounded-full blur-2xl" />
-              <h2 className="text-[10px] font-black text-rose-400 uppercase tracking-[0.3em] mb-8 md:mb-10">
-                Administrative
-              </h2>
+              <h2 className="text-[10px] font-black text-rose-400 uppercase tracking-[0.3em] mb-8 md:mb-10">Administrative</h2>
               <div className="space-y-3 md:space-y-4">
-                <QuickActionLink
-                  href="/dashboard/patients/new"
-                  label="Add New Patient"
-                />
-                <QuickActionLink
-                  href="/dashboard/appointments/new"
-                  label="Schedule Session"
-                />
+                <QuickActionLink href="/dashboard/patients/new" label="Add New Patient" />
+                <QuickActionLink href="/dashboard/appointments/new" label="Schedule Session" />
               </div>
             </div>
 
             <div className="bg-rose-50/50 border border-rose-100 rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12">
-              <p className="text-[9px] font-black text-rose-400 uppercase tracking-[0.3em] mb-6">
-                Clinical Vision
-              </p>
+              <p className="text-[9px] font-black text-rose-400 uppercase tracking-[0.3em] mb-6">Clinical Vision</p>
               <p className="text-xl md:text-2xl font-light text-slate-700 leading-tight italic font-serif">
-                "Precision is the{" "}
-                <span className="text-rose-500">signature</span> of excellence."
+                "Precision is the <span className="text-rose-500">signature</span> of excellence."
               </p>
             </div>
           </div>
@@ -247,41 +196,22 @@ export default function DashboardPage() {
 
 /* --- UI COMPONENTS --- */
 
-function StatCard({
-  title,
-  value,
-  subtitle,
-  icon,
-  color = "text-slate-900",
-}: any) {
+function StatCard({ title, value, subtitle, icon, color = "text-slate-900" }: any) {
   return (
     <div className="group bg-white border border-slate-100 rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 shadow-sm hover:shadow-xl hover:shadow-rose-100/20 hover:-translate-y-1 transition-all duration-500">
       <div className="flex justify-between items-start mb-6 md:mb-8">
-        <h3 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] md:tracking-[0.4em]">
-          {title}
-        </h3>
-        <div className="text-rose-400 group-hover:rotate-12 transition-transform">
-          {icon}
-        </div>
+        <h3 className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] md:tracking-[0.4em]">{title}</h3>
+        <div className="text-rose-400 group-hover:rotate-12 transition-transform">{icon}</div>
       </div>
-      <p
-        className={`text-5xl md:text-7xl font-light tracking-tighter ${color}`}
-      >
-        {value}
-      </p>
-      <p className="text-[9px] text-slate-500 mt-4 md:mt-6 font-bold uppercase tracking-widest">
-        {subtitle}
-      </p>
+      <p className={`text-5xl md:text-7xl font-light tracking-tighter ${color}`}>{value}</p>
+      <p className="text-[9px] text-slate-500 mt-4 md:mt-6 font-bold uppercase tracking-widest">{subtitle}</p>
     </div>
   );
 }
 
 function QuickActionLink({ href, label }: { href: string; label: string }) {
   return (
-    <Link
-      href={href}
-      className="flex items-center justify-between w-full p-4 md:p-6 bg-white/5 border border-white/10 rounded-2xl text-[9px] md:text-[10px] font-black text-white uppercase tracking-widest hover:bg-rose-500 hover:border-rose-500 transition-all"
-    >
+    <Link href={href} className="flex items-center justify-between w-full p-4 md:p-6 bg-white/5 border border-white/10 rounded-2xl text-[9px] md:text-[10px] font-black text-white uppercase tracking-widest hover:bg-rose-500 hover:border-rose-500 transition-all">
       {label}
       <IconArrowRight size="14" />
     </Link>
@@ -289,59 +219,7 @@ function QuickActionLink({ href, label }: { href: string; label: string }) {
 }
 
 /* --- ICONS --- */
-const IconFolder = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z" />
-  </svg>
-);
-const IconSparkle = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-  </svg>
-);
-const IconChart = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-  </svg>
-);
-const IconArrowRight = ({ size = "20" }: { size?: string }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M5 12h14M12 5l7 7-7 7" />
-  </svg>
-);
+const IconFolder = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z" /></svg>;
+const IconSparkle = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /></svg>;
+const IconChart = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>;
+const IconArrowRight = ({ size = "20" }: { size?: string }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>;
