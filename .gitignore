@@ -56,3 +56,5 @@ next-env.d.ts
 # clinical/temp uploads (if you save images locally during dev)
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+.history/
