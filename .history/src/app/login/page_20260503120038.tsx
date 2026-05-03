@@ -83,6 +83,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                // UPDATED: Added text-gray-900 and placeholder-gray-400 for better contrast
                 className="w-full px-5 py-3.5 bg-rose-50/50 border border-transparent rounded-2xl focus:bg-white focus:border-rose-200 focus:ring-4 focus:ring-rose-100 outline-none transition-all text-gray-900 placeholder:text-gray-400 text-sm sm:text-base"
                 placeholder="staff@auraclinic.com"
                 required
@@ -97,7 +98,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-5 py-3.5 bg-rose-50/50 border border-transparent rounded-2xl focus:bg-white focus:border-rose-200 focus:ring-4 focus:ring-rose-100 outline-none transition-all text-gray-900 placeholder:text-gray-400 text-sm sm:text-base"
+                className="w-full px-5 py-3.5 bg-rose-50/50 border border-transparent rounded-2xl focus:bg-white focus:border-rose-200 outline-none transition-all text-sm"
                 placeholder="••••••••"
                 required
               />
