@@ -2,7 +2,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// CHANGE: Rename this function from 'middleware' to 'proxy'
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({
     request: { headers: request.headers },
@@ -29,11 +28,12 @@ export async function proxy(request: NextRequest) {
     },
   );
 
+  // This is vital: it validates the session and refreshes it if needed
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect Dashboard: If no user, redirect to login
+  // 🛡️ Logic: Only redirect if they are NOT logged in AND trying to access the dashboard
   if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -42,5 +42,13 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: [
+    /*
+     * Match all request paths except for:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, Aura.png (your logos)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|Aura.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };
