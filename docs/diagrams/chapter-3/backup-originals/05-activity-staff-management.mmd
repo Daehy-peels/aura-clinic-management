@@ -1,0 +1,53 @@
+%% Activity Diagram: Staff Patient and Appointment Management
+%% Based on src/app/dashboard/ layout.tsx, patients/page.tsx, appointments/page.tsx implementation
+
+flowchart TD
+    Start([Start]) --> A[Login to Staff Dashboard /dashboard]
+    A --> B[Server-side Staff Role Verification]
+    B --> C{Authorized Staff?}
+    C -->|No| D[Redirect to /portal]
+    D --> E[End]
+    
+    C -->|Yes| F[View Dashboard Statistics]
+    F --> G{Select Module}
+    
+    G -->|Patient Directory| H[View All Patients]
+    H --> I[Search Patients by Name or Email]
+    I --> J[View Patient Details]
+    J --> K{Patient Action}
+    
+    K -->|Edit Profile| L[Open Edit Patient Form]
+    L --> M[Update Patient Record]
+    M --> N[Save Changes]
+    N --> H
+    
+    K -->|Delete Patient| O[Confirm Deletion]
+    O --> P[Delete Patient Record]
+    P --> H
+    
+    K -->|Book Session| Q[Create New Appointment]
+    Q --> G2
+    
+    G -->|Appointment Schedule| G2[View All Appointments]
+    G2 --> R[Filter by Status]
+    R --> S{Appointment Action}
+    
+    S -->|Update Status| T[Change Status scheduled/completed/cancelled]
+    T --> U[Save Status Update]
+    U --> G2
+    
+    S -->|Edit Appointment| V[Open Edit Appointment Form]
+    V --> W[Update Treatment, Date, Time, Duration]
+    W --> X{Slot Conflict?}
+    X -->|Yes| Y[Show Conflict Error]
+    Y --> W
+    
+    X -->|No| Z[Save Changes]
+    Z --> G2
+    
+    S -->|Delete Appointment| AA[Confirm Deletion]
+    AA --> AB[Delete Appointment Record]
+    AB --> G2
+
+    style Start fill:#e1f5e1,stroke:#008000,stroke-width:2px
+    style E fill:#ffcccc,stroke:#cc0000,stroke-width:2px

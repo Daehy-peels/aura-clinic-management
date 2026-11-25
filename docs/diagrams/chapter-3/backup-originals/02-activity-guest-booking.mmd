@@ -1,0 +1,33 @@
+%% Activity Diagram: Guest Appointment Booking
+%% Based on src/app/book/page.tsx implementation
+
+flowchart TD
+    Start([Start]) --> A[Visit /book Page]
+    A --> B[Select Treatment from Catalog]
+    B --> C[Select Appointment Date]
+    C --> D[Select Available Time Slot]
+    D --> E[Enter Full Name]
+    E --> F[Enter Email Address]
+    F --> G[Submit Booking Form]
+    
+    G --> H{Client-side Validation}
+    H -->|Missing required fields| I[Show Field Error]
+    I --> F
+    
+    H -->|Valid| J[Check Slot Availability via RPC get_booked_slots]
+    J --> K{Slot Available?}
+    K -->|No| L[Show Conflict Error]
+    L --> D
+    
+    K -->|Yes| M[Call RPC create_booking]
+    M --> N{Booking Success?}
+    N -->|Error| O[Show Error Toast]
+    O --> D
+    
+    N -->|Success| P[Patient Record Created or Matched by Email]
+    P --> Q[Appointment Inserted with status scheduled]
+    Q --> R[Show Confirmation Message]
+    R --> S[End]
+
+    style Start fill:#e1f5e1,stroke:#008000,stroke-width:2px
+    style S fill:#ffcccc,stroke:#cc0000,stroke-width:2px

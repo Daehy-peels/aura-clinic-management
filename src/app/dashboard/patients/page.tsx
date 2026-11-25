@@ -1,32 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { Patient } from "@/types";
 
 export default function PatientsPage() {
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [recentCount, setRecentCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
   const router = useRouter();
 
-  async function fetchPatients() {
-    setLoading(true);
+  const fetchPatients = useCallback(async () => {
     const { data, error } = await supabase
       .from("patients")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (!error) {
-      setPatients(data || []);
+    if (!error && data) {
+      const patientList = data as Patient[];
+      setPatients(patientList);
+      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      setRecentCount(
+        patientList.filter((p) => new Date(p.created_at).getTime() > oneWeekAgo).length,
+      );
     }
     setLoading(false);
-  }
+  }, [supabase]);
 
   useEffect(() => {
-    fetchPatients();
+    let cancelled = false;
+    async function load() {
+      const { data, error } = await supabase
+        .from("patients")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!cancelled) {
+        if (!error && data) {
+          const patientList = data as Patient[];
+          setPatients(patientList);
+          const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+          setRecentCount(
+            patientList.filter((p) => new Date(p.created_at).getTime() > oneWeekAgo).length,
+          );
+        }
+        setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [supabase]);
 
   const filteredPatients = patients.filter((p) => {
@@ -36,24 +64,23 @@ export default function PatientsPage() {
     return fullName.includes(search) || email.includes(search);
   });
 
-  const handleDelete = async (
-    e: React.MouseEvent,
-    id: string,
-    name: string,
-  ) => {
-    e.stopPropagation();
-    const confirmed = window.confirm(
-      `Permanently remove ${name} from clinical records?`,
-    );
-    if (!confirmed) return;
+  const handleDelete = useCallback(
+    async (e: React.MouseEvent, id: string, name: string) => {
+      e.stopPropagation();
+      const confirmed = window.confirm(
+        `Permanently remove ${name} from clinical records?`,
+      );
+      if (!confirmed) return;
 
-    const { error } = await supabase.from("patients").delete().eq("id", id);
-    if (!error) {
-      setPatients(patients.filter((p) => p.id !== id));
-    } else {
-      alert("Error: " + error.message);
-    }
-  };
+      const { error } = await supabase.from("patients").delete().eq("id", id);
+      if (!error) {
+        fetchPatients();
+      } else {
+        alert("Error: " + error.message);
+      }
+    },
+    [supabase, fetchPatients],
+  );
 
   return (
     <div className="min-h-screen bg-[#FFFDFD] p-4 md:p-12 pb-32">
@@ -129,13 +156,7 @@ export default function PatientsPage() {
                 Recent
               </p>
               <p className="text-xl font-bold text-emerald-700">
-                {
-                  patients.filter(
-                    (p) =>
-                      new Date(p.created_at) >
-                      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-                  ).length
-                }
+                {recentCount}
               </p>
             </div>
             <div className="flex-1 lg:w-40 bg-white p-4 rounded-3xl border border-slate-100 text-center shadow-sm">

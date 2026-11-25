@@ -56,6 +56,10 @@ export default function SignupPage() {
             <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 mt-3">
               Join the Aura Clinic Team
             </p>
+            <p className="text-[11px] text-gray-400 font-medium mt-4 leading-relaxed">
+              Staff access is activated after an administrator adds your account
+              to the team roster.
+            </p>
           </div>
 
           <form onSubmit={handleSignup} className="space-y-5 sm:space-y-6">

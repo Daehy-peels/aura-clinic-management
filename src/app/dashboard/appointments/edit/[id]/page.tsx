@@ -6,6 +6,13 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { addMinutes, parseISO } from "date-fns";
 
+type ScheduleOccupant = {
+  id: string;
+  scheduled_at: string;
+  duration: number | null;
+  patients: { first_name: string } | null;
+};
+
 export default function EditAppointmentPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -14,7 +21,7 @@ export default function EditAppointmentPage() {
   const [loading, setLoading] = useState(true);
   const [patientName, setPatientName] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [dayAppointments, setDayAppointments] = useState<any[]>([]);
+  const [dayAppointments, setDayAppointments] = useState<ScheduleOccupant[]>([]);
 
   const [formData, setFormData] = useState({
     treatment_type: "",
@@ -71,7 +78,7 @@ export default function EditAppointmentPage() {
         .filter("scheduled_at", "gte", dayStart)
         .filter("scheduled_at", "lte", dayEnd)
         .neq("id", id);
-      setDayAppointments(data || []);
+      setDayAppointments((data as unknown as ScheduleOccupant[]) || []);
     }
     fetchDaySchedule();
   }, [selectedDate, id, supabase]);
@@ -121,6 +128,7 @@ export default function EditAppointmentPage() {
       })
       .eq("id", id);
     if (!error) router.push("/dashboard/appointments");
+    else alert(error.message);
   };
 
   if (loading)
@@ -170,8 +178,8 @@ export default function EditAppointmentPage() {
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 block">
                   Session Status
                 </label>
-                <div className="grid grid-cols-3 gap-2 bg-slate-100/50 p-1.5 rounded-2xl">
-                  {["scheduled", "completed", "cancelled"].map((s) => (
+                <div className="grid grid-cols-4 gap-2 bg-slate-100/50 p-1.5 rounded-2xl">
+                  {["scheduled", "confirmed", "completed", "cancelled"].map((s) => (
                     <button
                       key={s}
                       type="button"

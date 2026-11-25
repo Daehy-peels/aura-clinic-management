@@ -1,0 +1,77 @@
+flowchart TB
+    %% Diagram 3a: Activity - Patient Registration & Login
+    %% Based on src/app/(auth)/portal/page.tsx implementation
+    %% Phase 1: Registration and Authentication
+
+    subgraph REG [Phase 1: Registration]
+        direction TB
+        C([Fill Registration Form])
+        D[Enter Email, Password,<br/>First Name, Last Name]
+        E[Submit Registration]
+        F[Call signUp RPC]
+        G{Registration Success?}
+        C --> D --> E --> F --> G
+    end
+
+    subgraph EMAIL [Email Confirmation Gate]
+        direction TB
+        I[Show Toast: Check<br/>Email to Confirm]
+        J[Email Confirmation<br/>Required]
+        K[Auto-switch to Login Tab]
+        I --> J --> K
+    end
+
+    subgraph LOGIN [Phase 2: Login]
+        direction TB
+        L([Fill Login Form])
+        M[Enter Email, Password]
+        N[Submit Login]
+        O[Call signInWithPassword RPC]
+        P{Login Success?}
+        L --> M --> N --> O --> P
+    end
+
+    subgraph REDIRECT [Role-Based Redirect]
+        direction TB
+        R{Staff Record Exists?}
+        S[Redirect to /dashboard<br/>Staff Dashboard]
+        T[Redirect to /account<br/>Client Portal]
+        R --> S
+        R --> T
+    end
+
+    subgraph ERR [Error Handling]
+        direction TB
+        H[Show Error Toast /<br/>Field Error]
+        Q[Show Error Toast]
+    end
+
+    %% Main flow
+    Start([Start]) --> A[Visit /portal Page]
+    A --> B{Login or Register Tab}
+    B -->|Register| C
+
+    %% Registration branches
+    G -->|Error| H
+    H --> E
+    G -->|Success| I
+
+    %% Confirmation flow
+    J --> K
+
+    %% Login flow
+    K --> L
+
+    %% Login branches
+    P -->|Error| Q
+    Q --> M
+    P -->|Success| R
+
+    %% Style groups
+    style REG fill:#f3f4f6,stroke:#6b7280,stroke-width:1px
+    style EMAIL fill:#fef3c7,stroke:#d97706,stroke-width:1px
+    style LOGIN fill:#ecfdf5,stroke:#059669,stroke-width:1px
+    style REDIRECT fill:#eff6ff,stroke:#2563eb,stroke-width:1px
+    style ERR fill:#fecaca,stroke:#dc2626,stroke-width:1px
+
+    style Start fill:#e1f5e1,stroke:#059669,stroke-width:2px

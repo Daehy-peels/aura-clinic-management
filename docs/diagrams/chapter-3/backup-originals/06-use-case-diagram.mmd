@@ -1,0 +1,66 @@
+%% Use Case Diagram - Aura Aesthetic Clinic
+%% Actors: Guest, Patient, Staff
+%% Admin is NOT a separate actor - it is a role designation within Staff
+
+flowchart TD
+    %% Actors (left side)
+    Guest([Guest])
+    Patient([Patient])
+    Staff([Staff])
+
+    %% Guest use cases
+    UC1(("Browse Treatments & Services"))
+    UC2(("Book Appointment - Guest"))
+    UC3(("Register New Account"))
+    UC4(("Login"))
+
+    %% Patient use cases
+    UC5(("Claim Patient Record"))
+    UC6(("View Appointments"))
+    UC7(("Cancel Appointment"))
+    UC8(("Reschedule Appointment"))
+    UC9(("Update Profile & Medical Details"))
+    UC10(("Logout"))
+
+    %% Staff use cases
+    UC11(("View Staff Dashboard"))
+    UC12(("Manage Patient Directory"))
+    UC13(("Schedule Appointment"))
+    UC14(("Update Appointment Status & Details"))
+    UC15(("Delete Appointment"))
+    UC16(("Staff Logout"))
+
+    %% Relationships - Guest
+    Guest --> UC1
+    Guest --> UC2
+    Guest --> UC3
+    Guest --> UC4
+
+    %% Relationships - Patient
+    Patient --> UC5
+    Patient --> UC6
+    Patient --> UC7
+    Patient --> UC8
+    Patient --> UC9
+    Patient --> UC10
+
+    %% Relationships - Staff
+    Staff --> UC11
+    Staff --> UC12
+    Staff --> UC13
+    Staff --> UC14
+    Staff --> UC15
+    Staff --> UC16
+
+    %% Include/extend relationships
+    UC2 -.->|include optional registration| UC3
+    UC6 -.->|extend| UC7
+    UC6 -.->|extend| UC8
+
+    %% Actor generalization
+    Guest -.->|after registration| Patient
+
+    %% Styling
+    style Guest fill:#f9f,stroke:#333,stroke-width:2px
+    style Patient fill:#bfb,stroke:#333,stroke-width:2px
+    style Staff fill:#bbf,stroke:#333,stroke-width:2px

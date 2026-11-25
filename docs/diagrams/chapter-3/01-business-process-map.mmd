@@ -1,0 +1,70 @@
+flowchart TB
+    %% Diagram 1: Business Process Map - Aura Aesthetic Clinic
+    %% Actors: Guest, Patient, Staff
+
+    subgraph ROW1 [Row 1: Guest & Patient Processes]
+        direction LR
+
+        subgraph GUEST [Guest Processes]
+            direction TB
+            G1([Browse Treatments])
+            G2([Book Appointment - Guest])
+            G3([Register New Account])
+            G1 --> G2 --> G3
+        end
+
+        subgraph PATIENT [Patient Processes]
+            direction TB
+            P1([Login to Client Portal])
+            P2([Claim Patient Record])
+            P3([View Appointments])
+            P4([Cancel Appointment])
+            P5([Reschedule Appointment])
+            P6([Update Profile Details])
+            P1 --> P2 --> P3
+            P3 --> P4
+            P3 --> P5
+            P3 --> P6
+        end
+    end
+
+    subgraph ROW2 [Row 2: Staff Processes]
+        direction TB
+        S1([Login to Staff Dashboard])
+        S2([View Dashboard Statistics])
+        S3([Manage Patient Directory])
+        S4([Schedule Appointment])
+        S5([Update Appointment Status])
+        S6([Delete Appointment])
+        S1 --> S2 --> S3
+        S3 --> S4 --> S5 --> S6
+    end
+
+    %% Cross-actor flows
+    G3 -.->|registers as patient| P1
+    G2 -.->|creates patient record| S3
+    P4 -.->|cancels appointment| S5
+    P5 -.->|reschedules appointment| S5
+
+    %% Styling
+    style GUEST fill:#fdf2f8,stroke:#be185d,stroke-width:2px
+    style PATIENT fill:#ecfdf5,stroke:#059669,stroke-width:2px
+    style STAFF fill:#eff6ff,stroke:#2563eb,stroke-width:2px
+    style ROW1 fill:#ffffff,stroke:none,stroke-width:0px
+    style ROW2 fill:#ffffff,stroke:none,stroke-width:0px
+
+    style G1 fill:#ffffff,stroke:#333,stroke-width:1px
+    style G2 fill:#ffffff,stroke:#333,stroke-width:1px
+    style G3 fill:#ffffff,stroke:#333,stroke-width:1px
+    style P1 fill:#ffffff,stroke:#333,stroke-width:1px
+    style P2 fill:#ffffff,stroke:#333,stroke-width:1px
+    style P3 fill:#ffffff,stroke:#333,stroke-width:1px
+    style P4 fill:#ffffff,stroke:#333,stroke-width:1px
+    style P5 fill:#ffffff,stroke:#333,stroke-width:1px
+    style P6 fill:#ffffff,stroke:#333,stroke-width:1px
+    style S1 fill:#ffffff,stroke:#333,stroke-width:1px
+    style S2 fill:#ffffff,stroke:#333,stroke-width:1px
+    style S3 fill:#ffffff,stroke:#333,stroke-width:1px
+    style S4 fill:#ffffff,stroke:#333,stroke-width:1px
+    style S5 fill:#ffffff,stroke:#333,stroke-width:1px
+    style S6 fill:#ffffff,stroke:#333,stroke-width:1px

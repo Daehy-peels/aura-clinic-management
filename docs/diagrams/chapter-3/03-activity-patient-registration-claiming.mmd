@@ -1,0 +1,47 @@
+%% Activity Diagram: Patient Registration and Record Claiming
+%% Based on src/app/(auth)/portal/page.tsx implementation
+
+flowchart TD
+    Start([Start]) --> A[Visit /portal Page]
+    A --> B{Login or Register Tab}
+    
+    B -->|Register| C[Fill Registration Form]
+    C --> D[Enter Email, Password, First Name, Last Name]
+    D --> E[Submit Registration]
+    
+    E --> F[Call signUp RPC]
+    F --> G{Registration Success?}
+    G -->|Error| H[Show Error Toast / Field Error]
+    H --> E
+    
+    G -->|Success| I[Show Toast: Check Email to Confirm]
+    I --> J[Auto-switch to Login Tab]
+    
+    J --> K[Fill Login Form]
+    K --> L[Enter Email, Password]
+    L --> M[Submit Login]
+    
+    M --> N[Call signInWithPassword RPC]
+    N --> O{Login Success?}
+    O -->|Error| P[Show Error Toast]
+    P --> L
+    
+    O -->|Success| Q{Staff Record Exists?}
+    Q -->|Yes| R[Redirect to /dashboard Staff]
+    Q -->|No| S[Redirect to /account Patient]
+    
+    S --> T[Call RPC claim_my_patient_record]
+    T --> U{Multiple patients with same email?}
+    U -->|Yes| V[Return Error: Ambiguous Match]
+    V --> W[End - Contact Clinic]
+    
+    U -->|No| X{Patient record exists?}
+    X -->|No| Y[Return Error: No Match]
+    Y --> Z[End - Contact Clinic]
+    
+    X -->|Yes| AA[UPDATE patients SET user_id = auth uid]
+    AA --> AB[Load Patient Dashboard]
+    AB --> AC[End]
+
+    style Start fill:#e1f5e1,stroke:#008000,stroke-width:2px
+    style AC fill:#ffcccc,stroke:#cc0000,stroke-width:2px

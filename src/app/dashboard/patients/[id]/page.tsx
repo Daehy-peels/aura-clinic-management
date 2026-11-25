@@ -5,11 +5,12 @@ import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+import type { Patient, Appointment } from "@/types";
 
 export default function PatientDetailsPage() {
   const { id } = useParams();
-  const [patient, setPatient] = useState<any>(null);
-  const [appointments, setAppointments] = useState<any[]>([]);
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const supabase = createClient();
@@ -27,14 +28,14 @@ export default function PatientDetailsPage() {
         .eq("patient_id", id)
         .order("scheduled_at", { ascending: false });
 
-      if (patientData) setPatient(patientData);
-      setAppointments(aptData || []);
+      if (patientData) setPatient(patientData as Patient);
+      setAppointments((aptData as Appointment[]) || []);
       setLoading(false);
     }
     fetchPatientData();
   }, [id, supabase]);
 
-  if (loading)
+  if (loading || !patient)
     return (
       <div className="min-h-screen bg-[#FFFDFD] flex items-center justify-center font-serif italic text-rose-400 animate-pulse p-6 text-center">
         Retrieving clinical dossier...
@@ -175,10 +176,10 @@ export default function PatientDetailsPage() {
                 </h3>
                 <div className="bg-rose-50/30 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-rose-100/50">
                   <p className="text-slate-600 leading-relaxed font-serif italic text-base md:text-lg">
-                    "
+                    &ldquo;
                     {patient.medical_history ||
                       "The patient's clinical history is currently clear."}
-                    "
+                    &rdquo;
                   </p>
                 </div>
               </div>
@@ -246,7 +247,7 @@ function StatBlock({ label, value }: { label: string; value: number }) {
   );
 }
 
-function ActivityCard({ apt }: { apt: any }) {
+function ActivityCard({ apt }: { apt: Appointment }) {
   return (
     <div className="bg-white p-5 md:p-8 rounded-2xl md:rounded-3xl border border-slate-100 flex items-center justify-between group hover:border-rose-200 transition-all">
       <div className="flex gap-4 md:gap-8 items-center">
@@ -372,22 +373,6 @@ const IconCake = () => (
       strokeLinejoin="round"
       strokeWidth={2}
       d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18z"
-    />
-  </svg>
-);
-const IconEdit = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-4 w-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
     />
   </svg>
 );

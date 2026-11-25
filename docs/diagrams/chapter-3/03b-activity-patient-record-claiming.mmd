@@ -1,0 +1,24 @@
+flowchart TD
+    %% Diagram 3b: Activity - Patient Record Claiming
+    %% Based on src/app/(auth)/portal/page.tsx implementation
+    %% Phase 2: Claim Patient Record (only for patients redirected to /account)
+
+    Start([Start]) --> A[Call RPC claim_my_patient_record]
+    A --> B{Multiple patients<br/>with same email?}
+
+    B -->|Yes| C[Return Error:<br/>Ambiguous Match]
+    C --> D([End - Contact Clinic])
+
+    B -->|No| E{Patient record<br/>exists?}
+
+    E -->|No| F[Return Error:<br/>No Match Found]
+    F --> G([End - Contact Clinic])
+
+    E -->|Yes| H[Link user to patient<br/>record in database]
+    H --> I[Load Patient Dashboard]
+    I --> J([End])
+
+    style Start fill:#e1f5e1,stroke:#059669,stroke-width:2px
+    style C fill:#fecaca,stroke:#dc2626,stroke-width:2px
+    style F fill:#fecaca,stroke:#dc2626,stroke-width:2px
+    style H fill:#fef3c7,stroke:#d97706,stroke-width:1px

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3 Diagrams Contact Sheet - Aura Aesthetic Clinic</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #ffffff;
+            color: #333;
+        }
+        h1 {
+            font-size: 24px;
+            color: #211a1a;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #8f4953;
+            padding-bottom: 10px;
+        }
+        .contact-sheet {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .diagram-card {
+            border: 1px solid #d8c1c3;
+            border-radius: 8px;
+            padding: 15px;
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .diagram-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #8f4953;
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #d8c1c3;
+            padding-bottom: 6px;
+        }
+        .diagram-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .diagram-num {
+            font-size: 11px;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            border-top: 1px solid #d8c1c3;
+            padding-top: 10px;
+        }
+        .split-note {
+            font-size: 10px;
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chapter 3 — Analysis Diagrams Contact Sheet (Final)</h1>
+    <p style="text-align: center; color: #666; margin-bottom: 30px;">
+        Aura Aesthetic Clinic — Web-Based Appointment Booking and Clinic Management System
+    </p>
+
+    <div class="contact-sheet">
+        <!-- Diagram 1 -->
+        <div class="diagram-card">
+            <div class="diagram-label">Diagram 1: Business Process Map</div>
+            <img src="exported/01-business-process-map.png" class="diagram-img" alt="Business Process Map">
+            <div class="diagram-num">File: 01-business-process-map.svg / .png</div>
+        </div>
+
+        <!-- Diagram 2 -->
+        <div class="diagram-card">
+            <div class="diagram-label">Diagram 2: Activity — Guest Appointment Booking</div>
+            <img src="exported/02-activity-guest-booking.png" class="diagram-img" alt="Guest Booking Activity">
+            <div class="diagram-num">File: 02-activity-guest-booking.svg / .png</div>
+        </div>
+
+        <!-- Diagram 3a -->
+        <div class="diagram-card">
+            <div class="diagram-label">Diagram 3a: Activity — Patient Registration & Login</div>
+            <img src="exported/03a-activity-patient-registration-login.png" class="diagram-img" alt="Patient Registration Activity">
+            <div class="diagram-num">File: 03a-activity-patient-registration-login.svg / .png</div>
+            <div class="split-note">Part 1 of 2 — connects to Diagram 3b</div>
+        </div>
+
+        <!-- Diagram 3b -->
+        <div class="diagram-card">
+            <div class="diagram-label">Diagram 3b: Activity — Patient Record Claiming</div>
+            <img src="exported/03b-activity-patient-record-claiming.png" class="diagram-img" alt="Patient Claiming Activity">
+            <div class="diagram-num">File: 03b-activity-patient-record-claiming.svg / .png</div>
+            <div class="split-note">Part 2 of 2 — follows Diagram 3a</div>
+        </div>
+
+        <!-- Diagram 4a -->
+        <div class="diagram-card">
+            <div class="diagram-label">Diagram 4a: Activity — Patient Appointment Cancellation</div>
+            <img src="exported/04a-activity-patient-cancellation.png" class="diagram-img" alt="Patient Cancellation Activity">
+            <div class="diagram-num">File: 04a-activity-patient-cancellation.svg / .png</div>
+            <div class="split-note">Part 1 of 2 — connects to Diagram 4b</div>
+        </div>
+
+        <!-- Diagram 4b -->
+        <div class="diagram-card">
+            <div class="diagram-label">Diagram 4b: Activity — Patient Appointment Rescheduling</div>
+            <img src="exported/04b-activity-patient-rescheduling.png" class="diagram-img" alt="Patient Rescheduling Activity">
+            <div class="diagram-num">File: 04b-activity-patient-rescheduling.svg / .png</div>
+            <div class="split-note">Part 2 of 2 — connects to Diagram 4a</div>
+        </div>
+
+        <!-- Diagram 5a -->
+        <div class="diagram-card">
+            <div class="diagram-label">Diagram 5a: Activity — Staff Patient Management</div>
+            <img src="exported/05a-activity-staff-patient-management.png" class="diagram-img" alt="Staff Patient Management Activity">
+            <div class="diagram-num">File: 05a-activity-staff-patient-management.svg / .png</div>
+            <div class="split-note">Part 1 of 2 — connects to Diagram 5b</div>
+        </div>
+
+        <!-- Diagram 5b -->
+        <div class="diagram-card">
+            <div class="diagram-label">Diagram 5b: Activity — Staff Appointment Management</div>
+            <img src="exported/05b-activity-staff-appointment-management.png" class="diagram-img" alt="Staff Appointment Management Activity">
+            <div class="diagram-num">File: 05b-activity-staff-appointment-management.svg / .png</div>
+            <div class="split-note">Part 2 of 2 — connects to Diagram 5a</div>
+        </div>
+
+        <!-- Diagram 6 -->
+        <div class="diagram-card">
+            <div class="diagram-label">Diagram 6: Use Case Diagram</div>
+            <img src="exported/06-use-case-diagram.png" class="diagram-img" alt="Use Case Diagram">
+            <div class="diagram-num">File: 06-use-case-diagram.svg / .png</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        All diagrams based on actual Aura Aesthetic Clinic source code implementation.<br>
+        Editable sources: docs/diagrams/chapter-3/*.mmd<br>
+        Exports: docs/diagrams/chapter-3/exported/*.svg and *.png<br>
+        Total: 9 diagrams (6 original diagrams, 3 split for readability)
+    </div>
+
+    <script>
+        window.onload = () => {
+            const images = document.querySelectorAll('.diagram-img');
+            let loaded = 0;
+            images.forEach(img => {
+                if (img.complete) {
+                    loaded++;
+                } else {
+                    img.onload = () => {
+                        loaded++;
+                        if (loaded === images.length) {
+                            window.print();
+                        }
+                    };
+                    img.onerror = () => {
+                        loaded++;
+                        if (loaded === images.length) {
+                            window.print();
+                        }
+                    };
+                }
+            });
+            if (loaded === images.length) {
+                window.print();
+            }
+        };
+    </script>
+</body>
+</html>

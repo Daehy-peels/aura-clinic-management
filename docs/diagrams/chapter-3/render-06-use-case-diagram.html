@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Use Case Diagram - Aura Aesthetic Clinic</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #ffffff; }
+        h1 { font-size: 18px; color: #211a1a; margin-bottom: 20px; }
+        .mermaid { text-align: center; }
+        .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Use Case Diagram - Aura Aesthetic Clinic</h1>
+    <div class="mermaid" id="diagram6">
+%% Use Case Diagram - Aura Aesthetic Clinic
+%% Actors: Guest, Patient, Staff
+%% Admin is NOT a separate actor - it is a role designation within Staff
+
+%% Use case boundary
+rectangle "Aura Aesthetic Clinic System" as System {
+    %% Guest use cases
+    usecase "Browse Treatments & Services" as UC1
+    usecase "Book Appointment - Guest" as UC2
+    usecase "Register New Account" as UC3
+    usecase "Login" as UC4
+
+    %% Patient use cases
+    usecase "Claim Patient Record" as UC5
+    usecase "View Appointments" as UC6
+    usecase "Cancel Appointment" as UC7
+    usecase "Reschedule Appointment" as UC8
+    usecase "Update Profile & Medical Details" as UC9
+    usecase "Logout" as UC10
+
+    %% Staff use cases
+    usecase "View Staff Dashboard" as UC11
+    usecase "Manage Patient Directory" as UC12
+    usecase "Schedule Appointment" as UC13
+    usecase "Update Appointment Status & Details" as UC14
+    usecase "Delete Appointment" as UC15
+    usecase "Staff Logout" as UC16
+}
+
+%% Actors
+actor "Guest" as Guest
+actor "Patient" as Patient
+actor "Staff" as Staff
+
+%% Relationships
+Guest --> UC1
+Guest --> UC2
+Guest --> UC3
+Guest --> UC4
+
+Patient --> UC5
+Patient --> UC6
+Patient --> UC7
+Patient --> UC8
+Patient --> UC9
+Patient --> UC10
+
+Staff --> UC11
+Staff --> UC12
+Staff --> UC13
+Staff --> UC14
+Staff --> UC15
+Staff --> UC16
+
+%% Include/extend relationships
+UC2 ..> UC3 : include (optional registration)
+UC6 ..> UC7 : extend
+UC6 ..> UC8 : extend
+
+%% Actor generalization
+Guest -|> Patient : "after registration"
+    </div>
+    <div class="footer">Chapter 3 - Analysis | Diagram 6: Use Case Diagram</div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+    </script>
+</body>
+</html>

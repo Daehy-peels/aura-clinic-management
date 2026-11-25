@@ -1,0 +1,109 @@
+flowchart TB
+    %% Figure 8: System Architecture Diagram - Aura Aesthetic Clinic
+    %% Verified against Next.js App Router source and Supabase migrations P0-P5
+
+    subgraph USERS [User Roles]
+        direction TB
+        GUEST([Guest])
+        PATIENT([Patient])
+        STAFF([Staff])
+    end
+
+    subgraph FRONTEND [Frontend Next.js App Router]
+        direction TB
+        NEXTJS[Next.js 16 + React 19 + TypeScript]
+        TAILWIND[Tailwind CSS v4]
+        PAGES[Public Pages / /book /portal /login /signup]
+        PATIENT_PAGES[Patient Pages /account]
+        STAFF_PAGES[Staff Pages /dashboard /dashboard/*]
+    end
+
+    subgraph AUTH [Supabase Authentication]
+        direction TB
+        AUTH_USERS[auth.users table]
+        AUTH_CLIENT[Supabase Browser Client]
+        AUTH_SERVER[Supabase Server Client]
+    end
+
+    subgraph DB [Supabase PostgreSQL]
+        direction TB
+        PATIENTS_T[patients table]
+        APPOINTMENTS_T[appointments table]
+        STAFF_T[staff table]
+        RLS[Row Level Security Policies]
+    end
+
+    subgraph RPC [PostgreSQL RPC Functions]
+        direction TB
+        GET_SLOTS[get_booked_slots date]
+        CREATE_BOOKING[create_booking]
+        CLAIM_RECORD[claim_my_patient_record]
+        CANCEL_APPT[cancel_my_appointment]
+        RESCHEDULE_APPT[reschedule_my_appointment]
+        HANDLE_NEW_USER[handle_new_user trigger]
+    end
+
+    GUEST --> PAGES
+    PATIENT --> PATIENT_PAGES
+    STAFF --> STAFF_PAGES
+
+    PAGES --> AUTH_CLIENT
+    PATIENT_PAGES --> AUTH_CLIENT
+    STAFF_PAGES --> AUTH_CLIENT
+
+    AUTH_CLIENT --> AUTH_USERS
+    AUTH_SERVER --> AUTH_USERS
+
+    PAGES -.-> GET_SLOTS
+    PAGES -.-> CREATE_BOOKING
+    PATIENT_PAGES -.-> CLAIM_RECORD
+    PATIENT_PAGES -.-> CANCEL_APPT
+    PATIENT_PAGES -.-> RESCHEDULE_APPT
+
+    STAFF_PAGES -.-> PATIENTS_T
+    STAFF_PAGES -.-> APPOINTMENTS_T
+    STAFF_PAGES -.-> STAFF_T
+
+    AUTH_USERS --> HANDLE_NEW_USER
+    HANDLE_NEW_USER -.-> PATIENTS_T
+
+    PATIENTS_T -.->|user_id FK| AUTH_USERS
+    APPOINTMENTS_T -.->|patient_id FK| PATIENTS_T
+    APPOINTMENTS_T -.->|user_id FK nullable| AUTH_USERS
+    STAFF_T -.->|user_id PK FK| AUTH_USERS
+
+    RLS -.-> PATIENTS_T
+    RLS -.-> APPOINTMENTS_T
+    RLS -.-> STAFF_T
+
+    style USERS fill:#fdf2f8,stroke:#be185d,stroke-width:2px
+    style FRONTEND fill:#f0fdf4,stroke:#059669,stroke-width:2px
+    style AUTH fill:#eff6ff,stroke:#2563eb,stroke-width:2px
+    style DB fill:#fefce8,stroke:#ca8a04,stroke-width:2px
+    style RPC fill:#fafafa,stroke:#4b5563,stroke-width:2px
+
+    style GUEST fill:#ffffff,stroke:#333,stroke-width:1px
+    style PATIENT fill:#ffffff,stroke:#333,stroke-width:1px
+    style STAFF fill:#ffffff,stroke:#333,stroke-width:1px
+
+    style NEXTJS fill:#ffffff,stroke:#333,stroke-width:1px
+    style TAILWIND fill:#ffffff,stroke:#333,stroke-width:1px
+    style PAGES fill:#ffffff,stroke:#333,stroke-width:1px
+    style PATIENT_PAGES fill:#ffffff,stroke:#333,stroke-width:1px
+    style STAFF_PAGES fill:#ffffff,stroke:#333,stroke-width:1px
+
+    style AUTH_USERS fill:#ffffff,stroke:#333,stroke-width:1px
+    style AUTH_CLIENT fill:#ffffff,stroke:#333,stroke-width:1px
+    style AUTH_SERVER fill:#ffffff,stroke:#333,stroke-width:1px
+
+    style PATIENTS_T fill:#ffffff,stroke:#333,stroke-width:1px
+    style APPOINTMENTS_T fill:#ffffff,stroke:#333,stroke-width:1px
+    style STAFF_T fill:#ffffff,stroke:#333,stroke-width:1px
+    style RLS fill:#ffffff,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
+
+    style GET_SLOTS fill:#ffffff,stroke:#333,stroke-width:1px
+    style CREATE_BOOKING fill:#ffffff,stroke:#333,stroke-width:1px
+    style CLAIM_RECORD fill:#ffffff,stroke:#333,stroke-width:1px
+    style CANCEL_APPT fill:#ffffff,stroke:#333,stroke-width:1px
+    style RESCHEDULE_APPT fill:#ffffff,stroke:#333,stroke-width:1px
+    style HANDLE_NEW_USER fill:#ffffff,stroke:#333,stroke-width:1px

@@ -1,0 +1,48 @@
+erDiagram
+    %% Figure 9: Entity Relationship Diagram - Aura Aesthetic Clinic
+    %% Verified against Supabase migrations P0-P5
+    %% auth.users is managed by Supabase Auth (external reference)
+
+    auth_users ||--o{ patients : "user_id nullable FK"
+    auth_users ||--o{ appointments : "user_id nullable FK"
+    auth_users }o--|| staff : "user_id PK FK"
+    patients ||--o{ appointments : "patient_id FK"
+
+    patients {
+        uuid id PK
+        uuid user_id "FK auth.users(id), nullable"
+        text first_name
+        text last_name
+        text email "UNIQUE"
+        text phone "nullable"
+        date date_of_birth "nullable"
+        text medical_history "nullable"
+        timestamptz created_at
+    }
+
+    appointments {
+        uuid id PK
+        uuid patient_id "FK patients(id)"
+        uuid user_id "FK auth.users(id), nullable"
+        timestamp scheduled_at
+        integer duration "default 30, 5-480"
+        text treatment_type
+        text status "scheduled confirmed completed cancelled"
+        text notes "nullable"
+    }
+
+    staff {
+        uuid user_id "PK FK auth.users(id)"
+        text email
+        text full_name
+        text role "admin staff practitioner"
+        timestamptz created_at
+    }
+
+%% Constraints not expressible in erDiagram syntax:
+%% - appointments_no_overlap: GiST exclusion constraint prevents
+%%   overlapping non-cancelled appointments
+%% - appointments_duration_reasonable: CHECK duration BETWEEN 5 AND 480
+%% - patients_email_key: UNIQUE constraint on email column
+%% - RLS: staff manages all; patients select/update own records only
+%% - auth.users is managed by Supabase Auth, not by app migrations

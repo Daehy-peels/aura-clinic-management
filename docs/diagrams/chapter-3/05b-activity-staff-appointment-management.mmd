@@ -1,0 +1,29 @@
+flowchart TD
+    %% Diagram 5b: Activity - Staff Appointment Management
+    %% Based on src/app/dashboard/appointments/page.tsx implementation
+
+    Start([Start]) --> A[View All Appointments]
+    A --> B[Filter by Status]
+    B --> C{Appointment Action}
+
+    C -->|Update Status| D[Change Status:<br/>scheduled / completed / cancelled]
+    D --> E[Save Status Update]
+    E --> A
+
+    C -->|Edit Appointment| F[Open Edit Appointment Form]
+    F --> G[Update Treatment, Date,<br/>Time, Duration]
+    G --> H{Slot Conflict?}
+
+    H -->|Yes| I[Show Conflict Error]
+    I --> G
+
+    H -->|No| J[Save Changes]
+    J --> A
+
+    C -->|Delete Appointment| K[Confirm Deletion]
+    K --> L[Delete Appointment Record]
+    L --> A
+
+    style Start fill:#e1f5e1,stroke:#059669,stroke-width:2px
+    style C fill:#fef3c7,stroke:#d97706,stroke-width:1px
+    style H fill:#fef3c7,stroke:#d97706,stroke-width:1px

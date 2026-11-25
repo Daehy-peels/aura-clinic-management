@@ -1,0 +1,20 @@
+flowchart TD
+    %% Diagram 5a: Activity - Staff Patient Management
+    %% Based on src/app/dashboard/patients/page.tsx implementation
+
+    Start([Start]) --> A[View Patient Directory]
+    A --> B[Search Patients by Name or Email]
+    B --> C[View Patient Details]
+    C --> D{Patient Action}
+
+    D -->|Edit Profile| E[Open Edit Patient Form]
+    E --> F[Update Patient Record]
+    F --> G[Save Changes]
+    G --> A
+
+    D -->|Delete Patient| H[Confirm Deletion]
+    H --> I[Delete Patient Record]
+    I --> A
+
+    style Start fill:#e1f5e1,stroke:#059669,stroke-width:2px
+    style D fill:#fef3c7,stroke:#d97706,stroke-width:1px

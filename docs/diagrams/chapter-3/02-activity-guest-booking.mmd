@@ -1,0 +1,69 @@
+flowchart TB
+    %% Diagram 2: Activity - Guest Appointment Booking
+    %% Based on src/app/book/page.tsx implementation
+
+    Start([Start]) --> A
+    subgraph INPUT [1. Guest Input]
+        direction LR
+        A([Visit /book Page])
+        B([Select Treatment])
+        C([Select Date])
+        D([Select Time Slot])
+        E([Enter Full Name])
+        F([Enter Email Address])
+        G([Submit Booking Form])
+        A --> B --> C --> D --> E --> F --> G
+    end
+
+    subgraph VALIDATION [2. Validation & Availability]
+        direction TB
+        H{Client-side Validation}
+        J[Check Slot Availability<br/>via RPC get_booked_slots]
+        K{Slot Available?}
+        H --> J --> K
+    end
+
+    subgraph BOOKING [3. Booking & Confirmation]
+        direction TB
+        M[Call RPC create_booking]
+        N{Booking Success?}
+        P[Patient Record Created<br/>or Matched by Email]
+        Q[Appointment Inserted:<br/>status = scheduled]
+        R[Show Confirmation Message]
+        M --> N --> P --> Q --> R
+    end
+
+    subgraph ERRORS [4. Error Handling]
+        direction TB
+        I[Show Field Error]
+        L[Show Conflict Error]
+        O[Show Error Toast]
+    end
+
+    %% Main flow
+    G --> H
+
+    %% Validation branches
+    H -->|Missing fields| I
+    I --> F
+    H -->|Valid| J
+
+    K -->|No| L
+    L --> D
+
+    K -->|Yes| M
+
+    %% Booking branches
+    N -->|Error| O
+    O --> D
+    N -->|Success| P
+
+    %% Styling
+    style Start fill:#e1f5e1,stroke:#059669,stroke-width:2px
+    style S fill:#fecaca,stroke:#dc2626,stroke-width:2px
+    style INPUT fill:#f3f4f6,stroke:#6b7280,stroke-width:1px
+    style VALIDATION fill:#fef3c7,stroke:#d97706,stroke-width:1px
+    style BOOKING fill:#ecfdf5,stroke:#059669,stroke-width:1px
+    style ERRORS fill:#fecaca,stroke:#dc2626,stroke-width:1px
+
+    R --> S([End])

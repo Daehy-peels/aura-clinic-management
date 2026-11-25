@@ -1,0 +1,56 @@
+sequenceDiagram
+    autonumber
+    %% Figure 13: Guest Appointment Booking Sequence Diagram
+    %% Verified against src/app/book/page.tsx and migrations P0/P3
+
+    actor G as Guest
+    participant BP as Booking Page /book
+    participant SC as Supabase Client browser
+    participant DB as PostgreSQL Supabase
+    participant GS as get_booked_slots RPC
+    participant CB as create_booking RPC
+
+    G->>BP: Opens /book page
+    G->>BP: Selects treatment e.g. Aura Quartz Facial 90 min
+    G->>BP: Selects appointment date
+
+    BP->>SC: rpc get_booked_slots p_date
+    SC->>GS: RPC get_booked_slots date
+    GS->>DB: SELECT scheduled_at duration FROM appointments WHERE status <> cancelled AND scheduled_at on date
+    DB-->>GS: Returns booked time windows
+    GS-->>SC: Returns booked slots array
+    SC-->>BP: Returns availability data
+    BP->>BP: Marks reserved time slots struck-through disabled
+
+    G->>BP: Enters name email phone optional
+    G->>BP: Submits booking form
+
+    BP->>BP: Client-side validation required fields slot not busy
+    alt Validation fails
+        BP-->>G: Shows field error That time is already reserved
+    else Validation passes
+        BP->>SC: rpc create_booking first_name last_name email phone treatment_type scheduled_at duration notes
+        SC->>CB: RPC create_booking
+
+        alt Email matches existing patient
+            CB->>DB: SELECT patient by email lower email match
+            DB-->>CB: Returns existing patient_id
+        else No matching patient
+            CB->>DB: INSERT INTO patients first_name last_name email phone
+            DB-->>CB: Returns new patient_id
+        end
+
+        CB->>DB: INSERT INTO appointments patient_id treatment_type scheduled_at duration status scheduled notes user_id
+        alt Slot overlap exclusion constraint
+            DB-->>CB: Raises exclusion_violation
+            CB-->>SC: Converts to slot_taken exception
+            SC-->>BP: Error slot taken
+            BP-->>G: That time was just taken Please choose another slot
+        else Booking succeeds
+            DB-->>CB: Returns appointment_id
+            CB-->>SC: Returns JSON appointment_id patient_id
+            SC-->>BP: Returns success
+            BP->>BP: Shows confirmation screen treatment time date name
+            BP-->>G: Reservation confirmed
+        end
+    end

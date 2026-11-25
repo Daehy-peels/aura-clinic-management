@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Process Map - Aura Aesthetic Clinic</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #ffffff; }
+        h1 { font-size: 18px; color: #211a1a; margin-bottom: 20px; }
+        .mermaid { text-align: center; }
+        .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Business Process Map - Aura Aesthetic Clinic</h1>
+    <div class="mermaid" id="diagram1">
+flowchart TD
+    %% Business Process Map - Aura Aesthetic Clinic
+    %% Actors: Guest, Patient, Staff
+
+    subgraph Guest_Processes [Guest Processes]
+        G1[Browse Treatments & Services]
+        G2[Book Appointment - Guest Booking]
+        G3[Register New Account]
+    end
+
+    subgraph Patient_Processes [Patient Processes]
+        P1[Login to Client Portal]
+        P2[Claim Patient Record]
+        P3[View Appointments Upcoming & History]
+        P4[Cancel Appointment]
+        P5[Reschedule Appointment]
+        P6[Update Profile & Medical Details]
+    end
+
+    subgraph Staff_Processes [Staff Processes]
+        S1[Login to Staff Dashboard]
+        S2[View Dashboard Statistics]
+        S3[Manage Patient Directory Create Read Update Delete]
+        S4[Schedule Appointment for Patient]
+        S5[Update Appointment Status & Details]
+        S6[Delete Appointment]
+    end
+
+    %% Guest flow
+    G1 --> G2
+    G2 --> G3
+
+    %% Patient flow
+    G3 --> P1
+    P1 --> P2
+    P2 --> P3
+    P3 --> P4
+    P3 --> P5
+    P3 --> P6
+
+    %% Staff flow
+    S1 --> S2
+    S2 --> S3
+    S3 --> S4
+    S4 --> S5
+    S5 --> S6
+
+    %% Cross-actor connections
+    G2 -.->|Creates patient record| S3
+    P4 -.->|Updates appointment status| S5
+    P5 -.->|Updates appointment time| S5
+
+    style Guest_Processes fill:#f9f,stroke:#333,stroke-width:2px
+    style Patient_Processes fill:#bfb,stroke:#333,stroke-width:2px
+    style Staff_Processes fill:#bbf,stroke:#333,stroke-width:2px
+    </div>
+    <div class="footer">Chapter 3 - Analysis | Diagram 1: Business Process Map</div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+    </script>
+</body>
+</html>

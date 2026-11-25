@@ -15,11 +15,12 @@ export type AppointmentStatus =
 export interface Patient {
   id: string;
   created_at: string;
+  user_id?: string | null;
   first_name: string;
   last_name: string;
   email: string;
-  phone: string;
-  date_of_birth: string;
+  phone?: string | null;
+  date_of_birth?: string | null;
   medical_history?: string; // The '?' means this is optional
 }
 
@@ -29,7 +30,9 @@ export interface Patient {
 export interface Appointment {
   id: string;
   patient_id: string;
+  user_id?: string | null;
   scheduled_at: string;
+  duration: number; // minutes; single source of truth for length
   treatment_type: string;
   status: AppointmentStatus;
   notes?: string;

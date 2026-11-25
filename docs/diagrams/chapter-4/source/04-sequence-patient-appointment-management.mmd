@@ -1,0 +1,90 @@
+sequenceDiagram
+    autonumber
+    %% Figure 14: Patient Appointment Management Sequence Diagram
+    %% Verified against src/app/account/page.tsx and migrations P1/P3
+
+    actor P as Patient
+    participant PP as Patient Portal /account
+    participant SA as Supabase Auth
+    participant SC as Supabase Client browser
+    participant CMR as claim_my_patient_record RPC
+    participant GBS as get_booked_slots RPC
+    participant CMA as cancel_my_appointment RPC
+    participant RMA as reschedule_my_appointment RPC
+    participant DB as PostgreSQL Supabase
+
+    P->>PP: Opens /account client portal
+    PP->>SA: getUser check session
+    SA-->>PP: Returns authenticated user
+
+    PP->>SC: rpc claim_my_patient_record
+    SC->>CMR: RPC claim_my_patient_record
+    CMR->>DB: Match auth.users.email to patients.email requires email_confirmed_at IS NOT NULL
+    CMR->>DB: Update patients.user_id = auth.uid()
+    CMR->>DB: Backfill appointments.user_id WHERE user_id IS NULL
+    CMR-->>SC: Returns patient_id
+    SC-->>PP: Returns patient record
+
+    PP->>SC: SELECT patients WHERE user_id = auth.uid()
+    PP->>SC: SELECT appointments WHERE patient_id = patient.id ORDER BY scheduled_at DESC
+    SC-->>PP: Returns patient profile and appointments
+    PP->>P: Displays upcoming and past visits
+
+    P->>PP: Selects an appointment
+    P->>PP: Chooses Cancel or Reschedule
+
+    alt Cancel Appointment
+        PP->>P: Shows confirmation dialog Cancel visit Cannot be undone
+        P->>PP: Confirms cancellation
+        PP->>SC: rpc cancel_my_appointment p_appointment_id
+        SC->>CMA: RPC cancel_my_appointment id
+        CMA->>DB: SELECT appointment row
+        alt Not found not authorized not cancellable
+            DB-->>CMA: Raises exception not_found not_authorized not_cancellable
+            CMA-->>SC: Error
+            SC-->>PP: This visit can no longer be cancelled online
+            PP-->>P: Shows error toast
+        else Eligible status scheduled confirmed
+            DB-->>CMA: Row found owned by user
+            CMA->>DB: UPDATE appointments SET status cancelled WHERE id = id AND user_id = auth.uid() AND status IN scheduled confirmed
+            DB-->>CMA: Row updated
+            CMA-->>SC: Success void
+            SC-->>PP: Returns success
+            PP->>PP: Updates appointment status to cancelled optimistically
+            PP-->>P: Shows success toast Visit cancelled
+        end
+    else Reschedule Appointment
+        P->>PP: Selects new date and time
+        PP->>SC: rpc get_booked_slots p_date newDate
+        SC->>GBS: RPC get_booked_slots date
+        GBS->>DB: SELECT booked slots for date
+        DB-->>GBS: Returns booked time windows
+        GBS-->>SC: Returns booked slots
+        SC-->>PP: Returns availability
+        PP->>P: Displays available slots reserved times disabled
+        P->>PP: Selects new time slot
+        PP->>SC: rpc reschedule_my_appointment p_appointment_id p_scheduled_at
+        SC->>RMA: RPC reschedule_my_appointment id ts
+        RMA->>DB: SELECT appointment row
+        alt Not found not authorized not reschedulable
+            DB-->>RMA: Raises exception not_found not_authorized not_reschedulable
+            RMA-->>SC: Error
+            SC-->>PP: We could not reschedule that visit
+            PP-->>P: Shows error toast
+        else Eligible
+            DB-->>RMA: Row found owned by user
+            RMA->>DB: UPDATE appointments SET scheduled_at WHERE id = id AND user_id = auth.uid() AND status IN scheduled confirmed
+            alt Slot overlap exclusion constraint
+                DB-->>RMA: Raises exclusion_violation
+                RMA-->>SC: Converts to slot_taken
+                SC-->>PP: Error slot taken
+                PP-->>P: That slot was just taken Please choose another time
+            else Reschedule succeeds
+                DB-->>RMA: Row updated
+                RMA-->>SC: Success void
+                SC-->>PP: Returns success
+                PP->>PP: Updates appointment scheduled_at optimistically
+                PP-->>P: Shows success toast Visit rescheduled
+            end
+        end
+    end

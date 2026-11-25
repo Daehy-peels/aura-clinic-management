@@ -12,7 +12,6 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // Helper to quickly fill dummy data for visitors
   const handleFillDemo = () => {
     setEmail("admin@aura.com");
     setPassword("Auraadmin123");
@@ -22,7 +21,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -30,10 +29,38 @@ export default function LoginPage() {
     if (error) {
       alert(error.message);
       setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
+      return;
     }
+
+    const userId = data.user?.id;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    const { data: staffRow, error: staffError } = await supabase
+      .from("staff")
+      .select("user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (staffError) {
+      alert("Unable to verify staff access. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    if (!staffRow) {
+      await supabase.auth.signOut();
+      alert(
+        "This account doesn't have staff access. Please use the client portal to manage your bookings.",
+      );
+      router.push("/portal");
+      return;
+    }
+
+    router.push("/dashboard");
+    router.refresh();
   };
 
   return (
@@ -55,22 +82,22 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="mb-8 p-4 bg-rose-50/80 rounded-2xl border border-rose-100 text-center">
-            <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-2">
-              Guest Access
+          <div className="mb-8 rounded-2xl border border-rose-100 bg-rose-50/80 p-4 text-center">
+            <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-rose-500">
+              Explore the staff demo
             </p>
-            <p className="text-xs text-gray-600 font-medium">
+            <p className="text-xs font-medium text-gray-600">
               Email: admin@aura.com
             </p>
-            <p className="text-xs text-gray-600 font-medium">
-              PW: Auraadmin123
+            <p className="text-xs font-medium text-gray-600">
+              Password: Auraadmin123
             </p>
             <button
-              onClick={handleFillDemo}
               type="button"
-              className="mt-3 text-[10px] font-bold text-rose-500 underline underline-offset-4 hover:text-rose-700 transition-colors"
+              onClick={handleFillDemo}
+              className="mt-3 rounded-lg px-3 py-2 text-xs font-bold text-rose-600 underline underline-offset-4 hover:text-rose-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500"
             >
-              Auto-fill Demo Details
+              Use demo details
             </button>
           </div>
 

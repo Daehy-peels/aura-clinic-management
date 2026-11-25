@@ -1,0 +1,27 @@
+flowchart TD
+    %% Diagram 4a: Activity - Patient Appointment Cancellation
+    %% Based on src/app/account/page.tsx implementation
+
+    Start([Start]) --> A[Select Appointment to Cancel]
+    A --> B[Open Branded Confirmation Dialog]
+    B --> C{Confirm Cancel?}
+
+    C -->|Keep Visit| D[Close Dialog]
+    D --> E([Return to Appointments])
+
+    C -->|Cancel Visit| F[Call RPC cancel_my_appointment]
+    F --> G{Cancellation Success?}
+
+    G -->|Error: not_cancellable| H[Show Error:<br/>Cannot Cancel Online]
+    H --> E
+
+    G -->|Other Error| I[Show Error:<br/>Contact Clinic]
+    I --> E
+
+    G -->|Success| J[Mark appointment<br/>as cancelled]
+    J --> K[Show Success Toast]
+    K --> E
+
+    style Start fill:#e1f5e1,stroke:#059669,stroke-width:2px
+    style C fill:#fef3c7,stroke:#d97706,stroke-width:1px
+    style F fill:#fef3c7,stroke:#d97706,stroke-width:1px

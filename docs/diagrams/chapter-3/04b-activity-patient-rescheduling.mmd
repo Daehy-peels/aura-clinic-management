@@ -1,0 +1,24 @@
+flowchart TD
+    %% Diagram 4b: Activity - Patient Appointment Rescheduling
+    %% Based on src/app/account/page.tsx implementation
+
+    Start([Start]) --> A[Select Appointment to Reschedule]
+    A --> B[Open Reschedule Interface]
+    B --> C[Select New Date]
+    C --> D[Fetch Booked Slots<br/>via RPC get_booked_slots]
+    D --> E[Select New Time Slot]
+    E --> F[Call RPC reschedule_my_appointment]
+    F --> G{Reschedule Success?}
+
+    G -->|Error: slot_taken| H[Show Error:<br/>Slot Just Taken]
+    H --> E
+
+    G -->|Other Error| I[Show Error:<br/>Try Again]
+    I --> E
+
+    G -->|Success| J[Update Appointment<br/>scheduled_at]
+    J --> K[Show Success Toast]
+    K --> L([Return to Appointments])
+
+    style Start fill:#e1f5e1,stroke:#059669,stroke-width:2px
+    style F fill:#fef3c7,stroke:#d97706,stroke-width:1px

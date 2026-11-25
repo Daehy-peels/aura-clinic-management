@@ -1,0 +1,68 @@
+flowchart TB
+    %% Diagram 6: Use Case Diagram - Aura Aesthetic Clinic
+    %% Actors: Guest, Patient, Staff (Admin is a role within Staff, not separate actor)
+
+    subgraph System ["Aura Aesthetic Clinic System"]
+        direction TB
+
+        %% Guest Use Cases
+        G1(("Browse Treatments"))
+        G2(("Book Appointment"))
+        G3(("Register Account"))
+        G4(("Login"))
+
+        %% Patient Use Cases
+        P1(("Claim Patient Record"))
+        P2(("View Appointments"))
+        P3(("Cancel Appointment"))
+        P4(("Reschedule Appointment"))
+        P5(("Update Profile"))
+        P6(("Logout"))
+
+        %% Staff Use Cases
+        S1(("View Staff Dashboard"))
+        S2(("Manage Patient Directory"))
+        S3(("Schedule Appointment"))
+        S4(("Update Appointment Status"))
+        S5(("Delete Appointment"))
+        S6(("Staff Logout"))
+    end
+
+    %% Actors
+    Guest([Guest])
+    Patient([Patient])
+    Staff([Staff])
+
+    %% Actor - Use Case Relationships
+    Guest --> G1
+    Guest --> G2
+    Guest --> G3
+    Guest --> G4
+
+    Patient --> P1
+    Patient --> P2
+    Patient --> P3
+    Patient --> P4
+    Patient --> P5
+    Patient --> P6
+
+    Staff --> S1
+    Staff --> S2
+    Staff --> S3
+    Staff --> S4
+    Staff --> S5
+    Staff --> S6
+
+    %% Include / Extend Relationships
+    G2 -.->|<<include>>| G3
+    P2 -.->|<<extend>>| P3
+    P2 -.->|<<extend>>| P4
+
+    %% Actor Generalization
+    Guest -.->|after registration| Patient
+
+    %% Styling
+    style System fill:#ffffff,stroke:#333,stroke-width:3px
+    style Guest fill:#fdf2f8,stroke:#be185d,stroke-width:2px
+    style Patient fill:#ecfdf5,stroke:#059669,stroke-width:2px
+    style Staff fill:#eff6ff,stroke:#2563eb,stroke-width:2px

@@ -4,13 +4,27 @@ import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { format, addMinutes, parseISO } from "date-fns";
+import { format, addMinutes } from "date-fns";
+
+type PatientOption = {
+  id: string;
+  first_name: string;
+  last_name: string;
+};
+
+type DayAppointment = {
+  id: string;
+  scheduled_at: string;
+  duration: number | null;
+  status: string;
+  treatment_type: string;
+  patients: { first_name: string } | null;
+};
 
 export default function BookAppointmentPage() {
-  const [patients, setPatients] = useState<any[]>([]);
-  const [dayAppointments, setDayAppointments] = useState<any[]>([]);
+  const [patients, setPatients] = useState<PatientOption[]>([]);
+  const [dayAppointments, setDayAppointments] = useState<DayAppointment[]>([]);
   const [loading, setLoading] = useState(false);
-  const [slotError, setSlotError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(
     format(new Date(), "yyyy-MM-dd"),
   );
@@ -19,7 +33,7 @@ export default function BookAppointmentPage() {
     patient_id: "",
     treatment_type: "",
     scheduled_at: "",
-    ended_at: "",
+    duration: 60,
     notes: "",
   });
 
@@ -31,50 +45,49 @@ export default function BookAppointmentPage() {
       const { data: pData } = await supabase
         .from("patients")
         .select("id, first_name, last_name");
-      setPatients(pData || []);
+      setPatients((pData as PatientOption[]) || []);
 
       const { data: aData, error } = await supabase
         .from("appointments")
         .select(
-          "id, scheduled_at, ended_at, status, treatment_type, patients(first_name)",
+          "id, scheduled_at, duration, status, treatment_type, patients(first_name)",
         )
         .neq("status", "cancelled")
         .gte("scheduled_at", `${selectedDate}T00:00:00Z`)
         .lte("scheduled_at", `${selectedDate}T23:59:59Z`);
 
       if (error) console.error("Supabase Error:", error);
-      setDayAppointments(aData || []);
+      setDayAppointments((aData as unknown as DayAppointment[]) || []);
     }
     fetchData();
   }, [selectedDate, supabase]);
 
-  useEffect(() => {
-    if (!formData.scheduled_at || !formData.ended_at) {
-      setSlotError(null);
-      return;
+  const slotError = useMemo(() => {
+    if (!formData.scheduled_at) {
+      return null;
     }
 
-    const newStart = new Date(formData.scheduled_at).getTime();
-    const newEnd = new Date(formData.ended_at).getTime();
-
-    if (newEnd <= newStart) {
-      setSlotError("End time must be after start time.");
-      return;
-    }
+    const newStart = new Date(formData.scheduled_at);
+    const newStartMs = newStart.getTime();
+    const newEndMs = addMinutes(newStart, formData.duration).getTime();
 
     const conflict = dayAppointments.find((apt) => {
-      const existingStart = new Date(apt.scheduled_at).getTime();
-      const existingEnd = new Date(apt.ended_at).getTime();
-      return newStart < existingEnd && newEnd > existingStart;
+      const existingStart = new Date(
+        String(apt.scheduled_at).replace("Z", "").split("+")[0],
+      );
+      const existingEnd = addMinutes(
+        existingStart,
+        apt.duration || 30,
+      ).getTime();
+      return newStartMs < existingEnd && newEndMs > existingStart.getTime();
     });
 
     if (conflict) {
       const name = conflict.patients?.first_name || "another patient";
-      setSlotError(`This time is already booked by ${name}.`);
-    } else {
-      setSlotError(null);
+      return `This time is already booked by ${name}.`;
     }
-  }, [formData.scheduled_at, formData.ended_at, dayAppointments]);
+    return null;
+  }, [formData.scheduled_at, formData.duration, dayAppointments]);
 
   const timeSlots = useMemo(() => {
     const slots = [];
@@ -86,9 +99,9 @@ export default function BookAppointmentPage() {
       const timeStr = format(current, "HH:mm");
       const occupant = dayAppointments.find((apt) => {
         const dbStart = new Date(
-          apt.scheduled_at.replace("Z", "").split("+")[0],
+          String(apt.scheduled_at).replace("Z", "").split("+")[0],
         );
-        const dbEnd = new Date(apt.ended_at.replace("Z", "").split("+")[0]);
+        const dbEnd = addMinutes(dbStart, apt.duration || 30);
         const slotStart = current;
         const slotEnd = addMinutes(current, 30);
         return slotStart < dbEnd && slotEnd > dbStart;
@@ -109,25 +122,32 @@ export default function BookAppointmentPage() {
     setFormData({
       ...formData,
       scheduled_at: dateTime,
-      ended_at: format(
-        addMinutes(parseISO(dateTime), 60),
-        "yyyy-MM-dd'T'HH:mm",
-      ),
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (slotError || !formData.patient_id) return;
+    if (slotError || !formData.patient_id || !formData.scheduled_at) return;
     setLoading(true);
 
-    const { data: finalConflict } = await supabase
+    // Re-check against fresh data in case another staff member just booked.
+    const day = formData.scheduled_at.slice(0, 10);
+    const { data: fresh } = await supabase
       .from("appointments")
-      .select("id")
+      .select("id, scheduled_at, duration")
       .neq("status", "cancelled")
-      .lt("scheduled_at", formData.ended_at)
-      .gt("ended_at", formData.scheduled_at)
-      .maybeSingle();
+      .gte("scheduled_at", `${day}T00:00:00`)
+      .lte("scheduled_at", `${day}T23:59:59`);
+
+    const start = new Date(formData.scheduled_at);
+    const end = addMinutes(start, formData.duration);
+    const finalConflict = (fresh || []).some((apt: { scheduled_at: string; duration: number | null }) => {
+      const existingStart = new Date(
+        String(apt.scheduled_at).replace("Z", "").split("+")[0],
+      );
+      const existingEnd = addMinutes(existingStart, apt.duration || 30);
+      return start < existingEnd && end > existingStart;
+    });
 
     if (finalConflict) {
       alert("Conflict detected! Someone just booked this slot.");
@@ -233,17 +253,23 @@ export default function BookAppointmentPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-rose-400 uppercase tracking-widest">
-                  End Time
+                  Duration
                 </label>
-                <input
-                  type="datetime-local"
-                  required
-                  value={formData.ended_at}
-                  className="w-full p-3 rounded-xl bg-rose-50/50 text-xs"
+                <select
+                  value={formData.duration}
+                  className="w-full p-3 rounded-xl bg-rose-50/50 text-xs cursor-pointer"
                   onChange={(e) =>
-                    setFormData({ ...formData, ended_at: e.target.value })
+                    setFormData({
+                      ...formData,
+                      duration: parseInt(e.target.value, 10),
+                    })
                   }
-                />
+                >
+                  <option value={30}>30 minutes</option>
+                  <option value={60}>60 minutes</option>
+                  <option value={90}>90 minutes</option>
+                  <option value={120}>120 minutes</option>
+                </select>
               </div>
             </div>
 

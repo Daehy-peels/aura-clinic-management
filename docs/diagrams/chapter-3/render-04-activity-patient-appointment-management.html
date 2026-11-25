@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Diagram: Patient Appointment Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #ffffff; }
+        h1 { font-size: 18px; color: #211a1a; margin-bottom: 20px; }
+        .mermaid { text-align: center; }
+        .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Activity Diagram: Patient Appointment Management</h1>
+    <div class="mermaid" id="diagram4">
+flowchart TD
+    %% Activity Diagram: Patient Appointment Management
+    %% Based on src/app/account/page.tsx implementation
+    %% Covers: View appointments, Cancel appointment, Reschedule appointment
+
+    Start([Start]) --> A[Login to Client Portal /account]
+    A --> B[claim_my_patient_record RPC]
+    B --> C[Load Patient Data & Appointments]
+    C --> D[View Upcoming & History Tabs]
+    
+    D --> E{Select Action}
+    
+    E -->|View Appointment| F[Display Appointment Details]
+    F --> D
+    
+    E -->|Cancel Appointment| G[Open Branded Confirmation Dialog]
+    G --> H{Confirm Cancel?}
+    
+    H -->|Keep Visit| I[Close Dialog]
+    I --> D
+    
+    H -->|Cancel Visit| J[Call RPC cancel_my_appointment]
+    J --> K{Cancellation Success?}
+    K -->|Error not_cancellable| L[Show Error: Cannot Cancel Online]
+    L --> D
+    
+    K -->|Other Error| M[Show Error: Contact Clinic]
+    M --> D
+    
+    K -->|Success| N[Update Appointment Status to cancelled]
+    N --> O[Show Success Toast]
+    O --> D
+    
+    E -->|Reschedule Appointment| P[Open Reschedule Interface]
+    P --> Q[Select New Date]
+    Q --> R[Fetch Booked Slots via RPC get_booked_slots]
+    R --> S[Select New Time Slot]
+    S --> T[Call RPC reschedule_my_appointment]
+    T --> U{Reschedule Success?}
+    U -->|Error slot_taken| V[Show Error: Slot Taken]
+    V --> S
+    
+    U -->|Other Error| W[Show Error: Try Again]
+    W --> S
+    
+    U -->|Success| X[Update Appointment scheduled_at]
+    X --> Y[Show Success Toast]
+    Y --> D
+
+    style Start fill:#e1f5e1,stroke:#008000,stroke-width:2px
+    style AC fill:#ffcccc,stroke:#cc0000,stroke-width:2px
+    </div>
+    <div class="footer">Chapter 3 - Analysis | Diagram 4: Activity - Patient Appointment Management</div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+    </script>
+</body>
+</html>

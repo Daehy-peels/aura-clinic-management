@@ -34,8 +34,22 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // 🛡️ Logic: Only redirect if they are NOT logged in AND trying to access the dashboard
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+  const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
+
+  if (!user && isDashboard) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (user && isDashboard) {
+    const { data: staffRow, error: staffError } = await supabase
+      .from("staff")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (staffError || !staffRow) {
+      return NextResponse.redirect(new URL("/portal", request.url));
+    }
   }
 
   return response;

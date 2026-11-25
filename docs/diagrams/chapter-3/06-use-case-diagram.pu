@@ -1,0 +1,79 @@
+@startuml
+' Diagram 6: Use Case Diagram - Aura Aesthetic Clinic
+' Actors: Guest, Patient, Staff (Admin is a role within Staff, not separate actor)
+
+left to right direction
+
+skinparam packageStyle rectangle
+skinparam usecase {
+    BackgroundColor #ffffff
+    BorderColor #333333
+    ArrowColor #333333
+}
+skinparam actor {
+    BackgroundColor #ffffff
+    BorderColor #333333
+    ArrowColor #333333
+}
+
+rectangle "Aura Aesthetic Clinic System" {
+
+    ' Guest use cases
+    usecase "Browse Treatments & Services" as UC1
+    usecase "Book Appointment - Guest" as UC2
+    usecase "Register New Account" as UC3
+    usecase "Login" as UC4
+
+    ' Patient use cases
+    usecase "Claim Patient Record" as UC5
+    usecase "View Appointments" as UC6
+    usecase "Cancel Appointment" as UC7
+    usecase "Reschedule Appointment" as UC8
+    usecase "Update Profile & Medical Details" as UC9
+    usecase "Logout" as UC10
+
+    ' Staff use cases
+    usecase "View Staff Dashboard" as UC11
+    usecase "Manage Patient Directory" as UC12
+    usecase "Schedule Appointment" as UC13
+    usecase "Update Appointment Status & Details" as UC14
+    usecase "Delete Appointment" as UC15
+    usecase "Staff Logout" as UC16
+}
+
+' Actors
+actor "Guest" as Guest
+actor "Patient" as Patient
+actor "Staff" as Staff
+
+' Relationships - Guest
+Guest --> UC1
+Guest --> UC2
+Guest --> UC3
+Guest --> UC4
+
+' Relationships - Patient
+Patient --> UC5
+Patient --> UC6
+Patient --> UC7
+Patient --> UC8
+Patient --> UC9
+Patient --> UC10
+
+' Relationships - Staff
+Staff --> UC11
+Staff --> UC12
+Staff --> UC13
+Staff --> UC14
+Staff --> UC15
+Staff --> UC16
+
+' Include / Extend relationships
+UC2 ..> UC3 : <<include>>
+UC6 ..> UC7 : <<extend>>
+UC6 ..> UC8 : <<extend>>
+
+' Actor generalization
+Guest -[hidden]> Patient : after registration
+
+@enduml

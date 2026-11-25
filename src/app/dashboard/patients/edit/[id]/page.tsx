@@ -23,7 +23,7 @@ export default function EditPatientPage() {
 
   useEffect(() => {
     async function fetchPatient() {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("patients")
         .select("*")
         .eq("id", id)
@@ -219,13 +219,21 @@ export default function EditPatientPage() {
 }
 
 // Reusable Enhanced Input Component
+interface InputGroupProps {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  placeholder: string;
+  type?: string;
+}
+
 function InputGroup({
   label,
   value,
   onChange,
   placeholder,
   type = "text",
-}: any) {
+}: InputGroupProps) {
   return (
     <div className="relative">
       <label className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 md:mb-3 block">

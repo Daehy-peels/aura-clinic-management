@@ -1,0 +1,154 @@
+sequenceDiagram
+    autonumber
+    %% Figure 15: Staff Management Sequence Diagram
+    %% Verified against dashboard pages proxy.ts middleware layout guards
+
+    actor S as Staff
+    participant SD as Staff Dashboard /dashboard
+    participant SA as Supabase Auth
+    participant SC as Supabase Client browser
+    participant SSR as Supabase Server server component
+    participant DB as PostgreSQL Supabase
+    participant RLS as Row Level Security Policies
+
+    S->>SD: Opens /dashboard or /login
+    alt Not authenticated
+        SD-->>S: Redirect to /login
+        S->>SD: Enters credentials demo admin@aura.com
+        SD->>SA: signInWithPassword email password
+        SA-->>SD: Returns user session
+        SD->>SD: Check staff table for user_id
+        alt Staff record exists
+            SD-->>S: Grants dashboard access
+        else No staff record
+            SD->>SA: signOut
+            SD-->>S: Redirect to /portal This account does not have staff access
+        end
+    else Already authenticated
+        SD->>SA: getUser validate session
+        SA-->>SD: Returns user
+    end
+
+    SD->>SSR: Server-side layout check getUser staff lookup
+    SSR->>SA: Validate session cookie
+    SA-->>SSR: Returns authenticated user
+    SSR->>DB: SELECT staff WHERE user_id = auth.uid()
+    RLS-.->DB: policy staff_select_self
+    DB-->>SSR: Returns staff row
+    SSR-->>SD: Renders dashboard layout
+
+    S->>SD: Views dashboard overview
+    SD->>SC: SELECT patients count head
+    SC->>DB: Query patients table
+    RLS-.->DB: policy staff_manage_patients
+    DB-->>SC: Returns patient count
+    SC-->>SD: Returns count
+    SD->>SC: SELECT appointments today count
+    SC->>DB: Query appointments today
+    DB-->>SC: Returns today count
+    SC-->>SD: Returns count
+    SD->>S: Displays stats upcoming appointments
+
+    alt Patient Management
+        S->>SD: Navigates to /dashboard/patients
+        SD->>SC: SELECT patients ORDER BY created_at DESC
+        SC->>DB: Query patients table
+        DB-->>SC: Returns patient list
+        SC-->>SD: Returns patients
+        SD->>S: Displays patient directory
+
+        rect rgb(240, 248, 247)
+        note right of SD: CRUD Operations
+        alt Create Patient
+            S->>SD: Opens /dashboard/patients/new
+            S->>SD: Fills patient form name email phone etc
+            SD->>SC: INSERT INTO patients form data
+            SC->>DB: Insert patient row
+            DB-->>SC: Confirm insert
+            SC-->>SD: Redirect to patient list
+        else View Patient Details
+            S->>SD: Clicks patient record
+            SD->>SC: SELECT patients WHERE id = patientId
+            SC->>DB: Query patient by ID
+            DB-->>SC: Returns patient and appointments
+            SC-->>SD: Returns patient data
+            SD->>S: Displays patient details
+        else Update Patient
+            S->>SD: Opens /dashboard/patients/edit/id
+            S->>SD: Edits patient details
+            SD->>SC: UPDATE patients SET WHERE id = patientId
+            SC->>DB: Update patient row
+            DB-->>SC: Confirm update
+            SC-->>SD: Redirect to patient list
+        else Delete Patient
+            S->>SD: Clicks delete on patient
+            SD->>S: Confirm deletion dialog
+            S->>SD: Confirms
+            SD->>SC: DELETE FROM patients WHERE id = patientId
+            SC->>DB: Delete patient row
+            DB-->>SC: Confirm deletion
+            SC-->>SD: Redirect to patient list
+        end
+        end
+    else Appointment Management
+        S->>SD: Navigates to /dashboard/appointments
+        SD->>SC: SELECT appointments WITH patients ORDER BY scheduled_at ASC
+        SC->>DB: Query appointments joined patients
+        DB-->>SC: Returns appointments patient names
+        SC-->>SD: Returns appointments
+        SD->>S: Displays appointment schedule
+
+        rect rgb(240, 248, 247)
+        note right of SD: CRUD Operations
+        alt Schedule Appointment
+            S->>SD: Opens /dashboard/appointments/new
+            S->>SD: Selects patient treatment date time duration
+            SD->>SC: INSERT INTO appointments patient_id treatment_type scheduled_at duration notes
+            SC->>DB: Insert appointment row
+            alt Conflict overlap detected
+                DB-->>SC: Error slot conflict
+                SC-->>SD: Conflict detected
+                SD->>S: Shows error reloads page
+            else Success
+                DB-->>SC: Confirm insert
+                SC-->>SD: Redirect to appointments
+                SD->>S: Displays updated schedule
+            end
+        else Edit Appointment
+            S->>SD: Opens /dashboard/appointments/edit/id
+            S->>SD: Edits treatment duration time status notes
+            SD->>SC: UPDATE appointments SET WHERE id = appointmentId
+            SC->>DB: Update appointment row
+            alt Conflict overlap detected
+                DB-->>SC: Error slot conflict
+                SC-->>SD: Shows conflict warning
+                SD->>S: Blocks save
+            else Success
+                DB-->>SC: Confirm update
+                SC-->>SD: Redirect to appointments
+                SD->>S: Displays updated schedule
+            end
+        else Update Status
+            S->>SD: Changes status button scheduled confirmed completed cancelled
+            SD->>SC: UPDATE appointments SET status WHERE id = appointmentId
+            SC->>DB: Update appointment status
+            DB-->>SC: Confirm update
+            SC-->>SD: Optimistic UI update
+        else Delete Appointment
+            S->>SD: Clicks delete on appointment
+            SD->>S: Confirm deletion dialog
+            S->>SD: Confirms
+            SD->>SC: DELETE FROM appointments WHERE id = appointmentId
+            SC->>DB: Delete appointment row
+            DB-->>SC: Confirm deletion
+            SC-->>SD: Redirect to appointments
+        end
+        end
+    end
+
+    S->>SD: Clicks Sign Out
+    SD->>SA: signOut
+    SA-->>SD: Session cleared
+    SD-->>S: Redirect to /login
+
+    note over RLS,DB: RLS policies enforce staff access to records linked to authenticated session Direct table access not RPC is used for staff operations

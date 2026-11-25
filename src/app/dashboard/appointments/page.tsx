@@ -1,18 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+import type { AppointmentStatus } from "@/types";
+
+export interface AppointmentWithPatient {
+  id: string;
+  scheduled_at: string;
+  treatment_type: string;
+  status: AppointmentStatus;
+  notes: string | null;
+  patients: {
+    first_name: string;
+    last_name: string;
+  } | null;
+}
 
 export default function AppointmentsPage() {
-  const [appointments, setAppointments] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentWithPatient[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
   const supabase = createClient();
 
-  const fetchAppointments = async () => {
-    setLoading(true);
+  const fetchAppointments = useCallback(async () => {
     const { data, error } = await supabase
       .from("appointments")
       .select(
@@ -27,15 +39,43 @@ export default function AppointmentsPage() {
       )
       .order("scheduled_at", { ascending: true });
 
-    if (!error) setAppointments(data || []);
+    if (!error && data) {
+      setAppointments(data as unknown as AppointmentWithPatient[]);
+    }
     setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchAppointments();
   }, [supabase]);
 
-  const updateStatus = async (id: string, newStatus: string) => {
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      const { data, error } = await supabase
+        .from("appointments")
+        .select(
+          `
+          id,
+          scheduled_at,
+          treatment_type,
+          status,
+          notes,
+          patients (first_name, last_name)
+        `,
+        )
+        .order("scheduled_at", { ascending: true });
+
+      if (!cancelled) {
+        if (!error && data) {
+          setAppointments(data as unknown as AppointmentWithPatient[]);
+        }
+        setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase]);
+
+  const updateStatus = async (id: string, newStatus: AppointmentStatus) => {
     const { error } = await supabase
       .from("appointments")
       .update({ status: newStatus })
@@ -106,7 +146,7 @@ export default function AppointmentsPage() {
 
         {/* REFINED FILTERS - Scrollable on mobile */}
         <div className="flex items-center gap-6 md:gap-10 mb-8 md:mb-12 border-b border-slate-100 overflow-x-auto no-scrollbar pb-1">
-          {["all", "scheduled", "completed", "cancelled"].map((status) => (
+          {["all", "scheduled", "confirmed", "completed", "cancelled"].map((status) => (
             <button
               key={status}
               onClick={() => setActiveFilter(status)}
@@ -153,9 +193,16 @@ export default function AppointmentsPage() {
   );
 }
 
-function AppointmentCard({ apt, onStatusUpdate, onDelete }: any) {
+interface AppointmentCardProps {
+  apt: AppointmentWithPatient;
+  onStatusUpdate: (id: string, newStatus: AppointmentStatus) => void;
+  onDelete: (id: string) => void;
+}
+
+function AppointmentCard({ apt, onStatusUpdate, onDelete }: AppointmentCardProps) {
   const isComp = apt.status === "completed";
   const isCan = apt.status === "cancelled";
+  const isCon = apt.status === "confirmed";
 
   const naiveIso = apt.scheduled_at.slice(0, 16);
   const dateObj = parseISO(naiveIso);
@@ -188,7 +235,7 @@ function AppointmentCard({ apt, onStatusUpdate, onDelete }: any) {
         </div>
 
         <span
-          className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full md:mt-4 ${isComp ? "bg-emerald-100 text-emerald-600" : "bg-rose-50 text-rose-500"}`}
+          className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full md:mt-4 ${isComp ? "bg-emerald-100 text-emerald-600" : isCon ? "bg-sky-50 text-sky-600" : "bg-rose-50 text-rose-500"}`}
         >
           {apt.status}
         </span>

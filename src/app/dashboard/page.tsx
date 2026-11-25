@@ -1,9 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+
+const emptySubscribe = () => () => {};
+
+type UpcomingAppointment = {
+  id: string;
+  treatment_type: string;
+  scheduled_at: string;
+  patients: {
+    first_name: string;
+    last_name: string;
+  } | null;
+};
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -11,15 +23,18 @@ export default function DashboardPage() {
     todayAppointments: 0,
     weeklyGrowth: 0,
   });
-  const [upcoming, setUpcoming] = useState<any[]>([]);
+  const [upcoming, setUpcoming] = useState<UpcomingAppointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [mounted, setMounted] = useState(false);
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   const supabase = createClient();
 
   useEffect(() => {
-    setMounted(true);
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
     async function fetchDashboardData() {
@@ -56,7 +71,7 @@ export default function DashboardPage() {
         todayAppointments: todayApts.count || 0,
         weeklyGrowth: weeklyStats.count || 0,
       });
-      setUpcoming(agenda.data || []);
+      setUpcoming((agenda.data as unknown as UpcomingAppointment[]) || []);
       setLoading(false);
     }
 
@@ -91,8 +106,8 @@ export default function DashboardPage() {
               <span className="font-serif italic text-rose-500">Clinician</span>
             </h1>
             <p className="text-slate-500 font-bold mt-4 text-xs md:text-sm tracking-wide">
-              {mounted ? format(currentTime, "EEEE, MMMM do") : "---"} —{" "}
-              {mounted ? format(currentTime, "yyyy") : "---"}
+              {isClient ? format(currentTime, "EEEE, MMMM do") : "---"} —{" "}
+              {isClient ? format(currentTime, "yyyy") : "---"}
             </p>
           </div>
 
@@ -101,7 +116,7 @@ export default function DashboardPage() {
               Live Clinic Time
             </p>
             <p className="text-2xl md:text-4xl font-light text-slate-700 tracking-tight">
-              {mounted ? (
+              {isClient ? (
                 <>
                   {format(currentTime, "hh:mm:ss")}{" "}
                   <span className="text-sm md:text-lg font-black text-rose-400 uppercase">
@@ -233,10 +248,11 @@ export default function DashboardPage() {
               <p className="text-[9px] font-black text-rose-400 uppercase tracking-[0.3em] mb-6">
                 Clinical Vision
               </p>
-              <p className="text-xl md:text-2xl font-light text-slate-700 leading-tight italic font-serif">
-                "Precision is the{" "}
-                <span className="text-rose-500">signature</span> of excellence."
-              </p>
+                <p className="text-xl md:text-2xl font-light text-slate-700 leading-tight italic font-serif">
+                  “Precision is the{" "}
+                  <span className="text-rose-500">signature</span>{" "}
+                  of excellence.”
+                </p>
             </div>
           </div>
         </div>
@@ -247,13 +263,21 @@ export default function DashboardPage() {
 
 /* --- UI COMPONENTS --- */
 
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  subtitle: string;
+  icon: React.ReactNode;
+  color?: string;
+}
+
 function StatCard({
   title,
   value,
   subtitle,
   icon,
   color = "text-slate-900",
-}: any) {
+}: StatCardProps) {
   return (
     <div className="group bg-white border border-slate-100 rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 shadow-sm hover:shadow-xl hover:shadow-rose-100/20 hover:-translate-y-1 transition-all duration-500">
       <div className="flex justify-between items-start mb-6 md:mb-8">
